@@ -1,6 +1,6 @@
 import {getResponse} from './utils';
 
-const BASE_URL = 'https://auth.nomoreparties.co';
+const BASE_URL = 'http://artemtkachev.nomoredomains.monster/api';
 
 export const register = (email, password) => {
   return fetch(`${BASE_URL}/signup`, {
