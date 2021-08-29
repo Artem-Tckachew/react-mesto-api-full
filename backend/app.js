@@ -21,8 +21,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(requestLogger);
 app.use(cors({
-  origin: 'http://ArtemTkachev.nomoredomains.monster',
+  origin: 'https://ArtemTkachev.nomoredomains.monster',
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
+  allowedHeaders: ['Authorization', 'Content-Type'],
   credentials: true,
+  optionsSuccessStatus: 200,
 }));
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
