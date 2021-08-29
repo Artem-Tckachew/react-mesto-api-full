@@ -1,6 +1,6 @@
 import {getResponse} from './utils';
 
-const BASE_URL = 'http://artemtkachev.backend.nomoredomains.monster/';
+const BASE_URL = 'https://artemtkachev.backend.nomoredomains.monster/';
 
 export const register = (email, password) => {
   return fetch(`${BASE_URL}/signup`, {
