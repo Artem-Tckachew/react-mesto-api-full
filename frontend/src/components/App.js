@@ -14,7 +14,7 @@ import Register from './Register';
 import Login from './Login';
 import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
-import auth from '../utils/auth';
+import * as auth from '../utils/auth';
 
 function App() {
 
@@ -32,16 +32,11 @@ function App() {
   const [isCardsLoading, setIsCardsLoading] = useState(false);
   const [isCardsLoadError, setIsCardsLoadError] = useState();
   const [email, setEmail] = useState('');
-  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
 
   const history = useHistory();
   
   function handleCardClick(card) {
     setSelectedCard(card);
-  }
-
-  function handleInfoTooltipOpen() {
-    setIsInfoTooltipOpen(true);
   }
 
   function handleCardLike(card) {
@@ -87,7 +82,6 @@ function handleCardDelete(evt) {
     setIsDeleteCardPopupOpen(false);
     setTooltipStatus();
     setCardForDelete(undefined);
-    setIsInfoTooltipOpen(false);
   }
 
 function handleUpdateUser(item){
@@ -139,14 +133,12 @@ function onRegister({ email, password }){
         text: 'Вы успешно зарегистрировались', 
         iconType: 'success'
       });
-      handleInfoTooltipOpen();
     })
     .catch(() => {
       setTooltipStatus({
         text: 'Что-то пошло не так!  Попробуйте ещё раз.', 
         iconType: 'error'
       });
-      handleInfoTooltipOpen();
     })
 } 
 
@@ -163,43 +155,41 @@ function onLogin({ email, password }){
         text: 'Что-то пошло не так! Попробуйте ещё раз.', 
         iconType: 'error'
       });
-      handleInfoTooltipOpen();
     })
 }
 
 function onSignOut(){
-  auth.signOut()
+  localStorage.removeItem('jwt');
   setIsLoggedIn(false);
   history.push('/signin');
 }
 
-const tokenCheck = React.useCallback(() => {
-  auth.getContent().then((result) => {
-  if (result){
-    setIsLoggedIn(true);
-      setEmail(result.email);
-      history.push('/');
-    } else {
-      setTooltipStatus({
-        text: 'Вы успешно зарегистрировались', 
-        iconType: 'success'
-      });
-      handleInfoTooltipOpen();
-  }
-})
-  .catch((result) => console.log(`${result} при проверке токена`));
-}, [history]);
-
+const [isAuthChecking, setIsAuthChecking] = useState(true);
 useEffect(() => {
-  tokenCheck();
-}, [tokenCheck]);
+  const token = localStorage.getItem('jwt');
+  if (token){
+    setIsAuthChecking(true);
+    auth.checkToken(token)
+    .then((res) => {
+      setEmail(res.data.email);
+      setIsLoggedIn(true);
+      history.push('/');
+    })
+    .catch(() => {
+      localStorage.removeItem('jwt');
+    })
+    .finally(() => setIsAuthChecking(false));
+  } else {
+    setIsAuthChecking(false)
+  }
+}, [history]);
 
   return (
      <CurrentUserContext.Provider value={currentUser}>
   <div className="page">
     <Header  email={email} onSignOut={onSignOut} />
     <Switch>
-            <ProtectedRoute isLoggedIn={isLoggedIn} path="/"exact>
+            <ProtectedRoute isChecking={isAuthChecking} isLoggedIn={isLoggedIn} path="/"exact>
     <Main onEditProfile={setIsEditProfilePopupOpen}  isCardsLoading={isCardsLoading} isCardsError={isCardsLoadError}
     onAddPlace={setIsAddPlacePopupOpen}
     onEditAvatar={setIsEditAvatarPopupOpen} 
