@@ -14,7 +14,7 @@ import Register from './Register';
 import Login from './Login';
 import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
-import * as auth from '../utils/auth';
+import auth from '../utils/auth';
 
 function App() {
 
@@ -37,6 +37,10 @@ function App() {
   
   function handleCardClick(card) {
     setSelectedCard(card);
+  }
+
+  function handleInfoTooltipOpen() {
+    setIsInfoTooltipOpen(true);
   }
 
   function handleCardLike(card) {
@@ -133,12 +137,14 @@ function onRegister({ email, password }){
         text: 'Вы успешно зарегистрировались', 
         iconType: 'success'
       });
+      handleInfoTooltipOpen();
     })
     .catch(() => {
       setTooltipStatus({
         text: 'Что-то пошло не так!  Попробуйте ещё раз.', 
         iconType: 'error'
       });
+      handleInfoTooltipOpen();
     })
 } 
 
@@ -155,34 +161,37 @@ function onLogin({ email, password }){
         text: 'Что-то пошло не так! Попробуйте ещё раз.', 
         iconType: 'error'
       });
+      handleInfoTooltipOpen();
     })
 }
 
 function onSignOut(){
-  localStorage.removeItem('jwt');
+  auth.signOut()
   setIsLoggedIn(false);
   history.push('/signin');
 }
 
-const [isAuthChecking, setIsAuthChecking] = useState(true);
-useEffect(() => {
-  const token = localStorage.getItem('jwt');
-  if (token){
-    setIsAuthChecking(true);
-    auth.checkToken(token)
-    .then((res) => {
-      setEmail(res.data.email);
+const tokenCheck = React.useCallback(() => {
+  auth.getContent().then((result) => {
+  if (result){
+    setIsLoggedIn(true);
+      setEmail(result.email);
       setIsLoggedIn(true);
       history.push('/');
-    })
-    .catch(() => {
-      localStorage.removeItem('jwt');
-    })
-    .finally(() => setIsAuthChecking(false));
-  } else {
-    setIsAuthChecking(false)
+    } else {
+      setTooltipStatus({
+        text: 'Вы успешно зарегистрировались', 
+        iconType: 'success'
+      });
+      handleInfoTooltipOpen();
   }
+})
+  .catch((result) => console.log(`${result} при проверке токена`));
 }, [history]);
+
+React.useEffect(() => {
+  tokenCheck();
+}, [tokenCheck]);
 
   return (
      <CurrentUserContext.Provider value={currentUser}>
