@@ -8,7 +8,7 @@ class Auth {
   }
 
 register(email, password) {
-  return fetch(`${BASE_URL}/signup`, {
+  return fetch(`${this._address}/signup`, {
     method: 'POST',
       headers: this._headers,
       credentials: "include",
@@ -18,7 +18,7 @@ register(email, password) {
 };
 
 login(email, password) {
-  return fetch(`${BASE_URL}/signin`, {
+  return fetch(`${this._address}/signin`, {
     method: 'POST',
     headers: this._headers,
     credentials: "include",

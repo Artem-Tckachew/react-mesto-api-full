@@ -32,6 +32,7 @@ function App() {
   const [isCardsLoading, setIsCardsLoading] = useState(false);
   const [isCardsLoadError, setIsCardsLoadError] = useState();
   const [email, setEmail] = useState('');
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
 
   const history = useHistory();
   
@@ -86,6 +87,7 @@ function handleCardDelete(evt) {
     setIsDeleteCardPopupOpen(false);
     setTooltipStatus();
     setCardForDelete(undefined);
+    setIsInfoTooltipOpen(false);
   }
 
 function handleUpdateUser(item){
