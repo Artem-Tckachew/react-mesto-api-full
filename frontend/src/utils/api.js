@@ -9,6 +9,7 @@ class Api {
 
   getInitialCards() {
     return fetch(`${this._address}/${this._groupId}/cards`, {
+      credentials: 'include',
       headers: {
         authorization: this._token
       }
@@ -19,6 +20,7 @@ class Api {
   addCard(card) {
     return fetch(`${this._address}/${this._groupId}/cards`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         authorization: this._token,
         'Content-Type': 'application/json'
@@ -34,6 +36,7 @@ class Api {
   deleteCard(cardId) {
     return fetch(`${this._address}/${this._groupId}/cards/${cardId}`, {
       method: 'DELETE',
+      credentials: 'include',
       headers: {
         authorization: this._token,
       }
@@ -43,6 +46,7 @@ class Api {
 
   getUserData() {
     return fetch(`${this._address}/${this._groupId}/users/me`, {
+      credentials: 'include',
       headers: {
         authorization: this._token
       }
@@ -53,6 +57,7 @@ class Api {
   setUserData({name, about}) {
     return fetch(`${this._address}/${this._groupId}/users/me`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: {
         authorization: this._token,
         'Content-Type': 'application/json'
@@ -68,6 +73,7 @@ class Api {
   setUserAvatar({avatar}) {
     return fetch(`${this._address}/${this._groupId}/users/me/avatar`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: {
         authorization: this._token,
         'Content-Type': 'application/json'
@@ -82,6 +88,7 @@ class Api {
   changeLike(cardId, like) {
     return fetch(`${this._address}/${this._groupId}/cards/likes/${cardId}`, {
       method: like ? 'PUT' : 'DELETE',
+      credentials: 'include',
       headers: {
         authorization: this._token,
         'Content-Type': 'application/json'
