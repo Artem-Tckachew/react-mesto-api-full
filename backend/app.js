@@ -3,6 +3,7 @@ const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const { Joi, celebrate } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { isURL } = require('validator');
@@ -18,8 +19,15 @@ const { PORT = 3000 } = process.env;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
+app.use(cookieParser());
 app.use(requestLogger);
-app.use(cors());
+app.use(cors({
+  origin: 'http://artemtkachev.nomoredomains.monster',
+  methods: ['GET, POST, PUT, DELETE'],
+  allowedHeaders: ['Authorization, Content-Type'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
