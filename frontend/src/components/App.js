@@ -173,7 +173,7 @@ function onSignOut(){
   history.push('/signin');
 }
 
-const tokenCheck = useCallback(() => {
+const tokenCheck = React.useCallback(() => {
   auth.getContent().then((result) => {
   if (result){
     setIsLoggedIn(true);
