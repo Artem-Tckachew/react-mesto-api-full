@@ -2,6 +2,7 @@ const express = require('express');
 const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const cors = require('cors');
 const { Joi, celebrate } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { isURL } = require('validator');
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(requestLogger);
+app.use(cors);
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
