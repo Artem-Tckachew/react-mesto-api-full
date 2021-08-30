@@ -176,7 +176,6 @@ const tokenCheck = React.useCallback(() => {
   if (result){
     setIsLoggedIn(true);
       setEmail(result.email);
-      setIsLoggedIn(true);
       history.push('/');
     } else {
       setTooltipStatus({
@@ -189,7 +188,7 @@ const tokenCheck = React.useCallback(() => {
   .catch((result) => console.log(`${result} при проверке токена`));
 }, [history]);
 
-React.useEffect(() => {
+useEffect(() => {
   tokenCheck();
 }, [tokenCheck]);
 
@@ -198,7 +197,7 @@ React.useEffect(() => {
   <div className="page">
     <Header  email={email} onSignOut={onSignOut} />
     <Switch>
-            <ProtectedRoute isChecking={isAuthChecking} isLoggedIn={isLoggedIn} path="/"exact>
+            <ProtectedRoute isLoggedIn={isLoggedIn} path="/"exact>
     <Main onEditProfile={setIsEditProfilePopupOpen}  isCardsLoading={isCardsLoading} isCardsError={isCardsLoadError}
     onAddPlace={setIsAddPlacePopupOpen}
     onEditAvatar={setIsEditAvatarPopupOpen} 
