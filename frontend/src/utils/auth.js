@@ -45,6 +45,18 @@ signOut = () => {
 };
 }
 
+checkToken = (token) => {
+  return fetch(`${this._address}/users/me`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    }
+  })
+  .then(getResponse)
+}
+
 const auth = new Auth({
   address: 'http://artemtkachev.backend.nomoredomains.monster',
   headers: {
