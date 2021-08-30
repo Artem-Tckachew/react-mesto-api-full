@@ -17,18 +17,38 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const app = express();
 const { PORT = 3000 } = process.env;
 
+const corsAllowed = [
+  'http://artemtkachev.nomoredomains.monster',
+  'http://artemtkachev.backend.nomoredomains.monster',
+  'https://localhost:3000',
+];
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cookieParser());
 app.use(requestLogger);
-app.use(cors({
-  origin: 'http://artemtkachev.nomoredomains.monster',
-  methods: ['GET, POST, PUT, DELETE'],
-  allowedHeaders: ['Authorization, Content-Type'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin(origin, callback) {
+      if (corsAllowed.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  }),
+);
+
+app.options('*', cors());
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
