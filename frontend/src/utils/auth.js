@@ -43,7 +43,6 @@ signOut = () => {
     credentials: "include",
   }).then(getResponse)
 };
-}
 
 checkToken = (token) => {
   return fetch(`${this._address}/users/me`, {
@@ -55,6 +54,7 @@ checkToken = (token) => {
     }
   })
   .then(getResponse)
+}
 }
 
 const auth = new Auth({
