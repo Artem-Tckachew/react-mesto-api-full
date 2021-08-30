@@ -1,6 +1,4 @@
-require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -20,13 +18,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(requestLogger);
-app.use(cors({
-  origin: 'http://ArtemTkachev.nomoredomains.monster',
-  methods: ['GET', 'PUT', 'POST', 'DELETE'],
-  allowedHeaders: ['Authorization', 'Content-Type'],
-  credentials: true,
-  optionsSuccessStatus: 200,
-}));
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
