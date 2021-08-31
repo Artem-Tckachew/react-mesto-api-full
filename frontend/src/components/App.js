@@ -36,23 +36,18 @@ function App() {
   const history = useHistory();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      api.getUserData()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
-  
-      setIsCardsLoading(true);
-      setIsCardsLoadError();
-      api.getInitialCards()
-      .then((cardData) => {
-          setCards(cardData);
-      })
-      .catch(err => setIsCardsLoadError(err))
-      .finally(() => setIsCardsLoading(false));
-    }
-  }, [isLoggedIn]);
+
+  api.getAllData().then((res) => {
+    const [user, cards] = res;
+    setCurrentUser(user);
+    setCards(cards);
+    console.log(cards);
+    console.log(user);
+  })
+    .catch(err=> {
+      console.log(`Загрузка информации о пользователе: ${err}`)
+    })
+}, [isLoggedIn])
   
   function handleCardClick(card) {
     setSelectedCard(card);
