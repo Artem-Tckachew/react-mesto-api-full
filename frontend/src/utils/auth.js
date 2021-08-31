@@ -3,7 +3,6 @@ import {getResponse} from './utils';
 class Auth {
   constructor({address}) {
     this._address = address;
-    this._headers = headers;
   }
 
 register(email, password) {
