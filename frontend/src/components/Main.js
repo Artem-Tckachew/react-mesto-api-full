@@ -20,15 +20,6 @@ function Main({props}) {
         <button type="button" className="profile__add" onClick={props.onAddPlace} />
       </section>
       <section className="elements">
-      {isCardsLoading && (
-          <Preloader />
-        )}
-
-        {isCardsError && (
-          <p className='elements__loading'>isCardsError</p>
-        )}
-
-{!isCardsLoading && !isCardsError && (
           <ul className='elements__list'>
       {props.cards.map(card => {
             
@@ -42,7 +33,6 @@ function Main({props}) {
                />)
           })}
        </ul>
-     )}
         </section>
     </main>
   );
