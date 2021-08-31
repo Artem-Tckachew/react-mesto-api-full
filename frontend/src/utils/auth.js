@@ -1,8 +1,14 @@
-import {getResponse} from './utils';
-const adress = 'http://artemtkachev.backend.nomoredomains.monster',
+const BASE_URL = 'http://artemtkachev.backend.nomoredomains.monster',
 
-export const register = (email, password) => {
-  return fetch(`${adress}/signup`, {
+function checkResponse(res) {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Ошибка: ${res.status}`)
+}
+
+export const register = (password, email) => {
+  return fetch(`${BASE_URL}signup`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -10,15 +16,16 @@ export const register = (email, password) => {
     },
     body: JSON.stringify({password, email})
   })
-  .then (getResponse)
+  
+  .then (res=>checkResponse(res))
   .then((res) => {
     return res;
   })
   .catch((err) => console.log(err));
 }
 
-export const login = (email, password) => {
-  return fetch(`${adress}/signin`, {
+export const login = (password, email) => {
+  return fetch(`${BASE_URL}signin`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -26,27 +33,28 @@ export const login = (email, password) => {
     },
     body: JSON.stringify({password, email})
   })
-  .then (getResponse)
+  .then (res=>checkResponse(res))
 }
 
-export const getContent = () => {
-  return fetch(`${adress}/users/me`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Accept': 'application/json',
-        "Content-Type": "application/json",
-      }
-    }).then(getResponse)
-    .then(data => data)
-  }
 
-  export const signOut = () => {
-    return fetch(`${BASE_URL}signout`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: {
-        "Content-Type": "application/json",
-      }
-    })
-  }
+export const getContent = () => {
+  return fetch(`${BASE_URL}users/me`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Accept': 'application/json',
+      "Content-Type": "application/json",
+    }
+  }).then(res => checkResponse(res))
+  .then(data => data)
+}
+
+export const logout = () => {
+  return fetch(`${BASE_URL}signout`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+    }
+  })
+}
