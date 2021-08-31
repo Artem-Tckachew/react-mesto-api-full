@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const { Joi, celebrate } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { isURL } = require('validator');
-const { login, createUser } = require('./controllers/users');
+const { login, createUser, logout } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 const serverError = require('./middlewares/serverError');
@@ -17,32 +17,15 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const app = express();
 const { PORT = 3000 } = process.env;
 
-const corsAllowed = [
-  'http://artemtkachev.nomoredomains.monster',
-  'http://artemtkachev.backend.nomoredomains.monster',
-  'https://localhost:3000',
-];
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cookieParser());
 app.use(requestLogger);
-app.use(
-  cors({
-    credentials: true,
-    origin(origin, callback) {
-      if (corsAllowed.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-  }),
-);
-
-app.options('*', cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
 
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -78,7 +61,7 @@ app.post('/signup', celebrate({
     }),
   }).unknown(true),
 }), createUser);
-
+app.delete('/signout', logout);
 app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));

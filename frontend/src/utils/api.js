@@ -46,14 +46,14 @@ class Api {
     .then(getResponse)
   }
 
-  setUserData({name, about}) {
+  setUserData(data) {
     return fetch(`${this._address}/users/me`, {
       method: 'PATCH',
       headers: this._headers,
       credentials: 'include',
       body: JSON.stringify({
-        name,
-        about
+        name: data.name,
+        about: data.about
       })
     })
     .then(getResponse)

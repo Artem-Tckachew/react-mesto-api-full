@@ -15,7 +15,11 @@ register(email, password) {
     body: JSON.stringify({email, password})
   })
   .then(getResponse)
-};
+  .then((res) => {
+    return res;
+})
+.catch((err) => console.log(err));
+}
 
 login(email, password) {
   return fetch(`${this._address}/signin`, {
@@ -35,6 +39,7 @@ getContent() {
     },
     credentials: "include",
   }).then(getResponse)
+  .then(data => data)
 }
 
 signOut = () => {
