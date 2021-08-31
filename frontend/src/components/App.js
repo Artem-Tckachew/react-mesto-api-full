@@ -33,26 +33,26 @@ function App() {
   const [isCardsLoadError, setIsCardsLoadError] = useState();
   const [email, setEmail] = useState('');
 
-  const history = useHistory();
+  useEffect(() => {
+    if (isLoggedIn) {
+      api.getUserData()
+      .then((userData) => {
+        setCurrentUser(userData);
+      })
+      .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
+  
+      setIsCardsLoading(true);
+      setIsCardsLoadError();
+      api.getInitialCards()
+      .then((cardData) => {
+          setCards(cardData);
+      })
+      .catch(err => setIsCardsLoadError(err))
+      .finally(() => setIsCardsLoading(false));
+    }
+  }, [isLoggedIn]);
 
-    useEffect(() => {
-      if (isLoggedIn) {
-        api.getUserData()
-        .then((userData) => {
-          setCurrentUser(userData);
-        })
-        .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
-    
-        setIsCardsLoading(true);
-        setIsCardsLoadError();
-        api.getInitialCards()
-        .then((cardData) => {
-            setCards(cardData);
-        })
-        .catch(err => setIsCardsLoadError(err))
-        .finally(() => setIsCardsLoading(false));
-      }
-    }, [isLoggedIn]);
+  const history = useHistory();
   
   function handleCardClick(card) {
     setSelectedCard(card);
