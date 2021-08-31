@@ -179,26 +179,6 @@ function onSignOut(){
   history.push('/signin');
 }
 
-const [isAuthChecking, setIsAuthChecking] = useState(true);
-useEffect(() => {
-  const token = localStorage.getItem('jwt');
-  if (token){
-    setIsAuthChecking(true);
-    auth.checkToken(token)
-    .then((res) => {
-      setEmail(res.data.email);
-      setIsLoggedIn(true);
-      history.push('/');
-    })
-    .catch(() => {
-      localStorage.removeItem('jwt');
-    })
-    .finally(() => setIsAuthChecking(false));
-  } else {
-    setIsAuthChecking(false)
-  }
-}, [history]);
-
   return (
      <CurrentUserContext.Provider value={currentUser}>
   <div className="page">
