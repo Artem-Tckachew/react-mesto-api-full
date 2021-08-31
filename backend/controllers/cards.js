@@ -29,29 +29,22 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  const { cardId } = req.params;
-  Card.findById(cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Нет карточки c таким id');
-      } else if (JSON.stringify(req.user._id) === JSON.stringify(card.owner)) {
-        Card.findByIdAndRemove(cardId)
-          .then((result) => {
-            res.send(result);
-          });
-      } else {
-        throw new AuthError('Недостаточно прав для удаления данной карточки');
+      } else if (card.owner.toString() !== req.user._id) {
+        next (new AuthError('Недостаточно прав для удаления данной карточки'));
       }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      } else {
-        next(err);
-      }
+    return Card.findByIdAndRemove(req.params.cardId)
+    .then((deleteCard) => {
+      res.status(200).send(deleteCard);
     })
     .catch(next);
+})
+.catch(next);
 };
+
 
 const likeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -72,7 +65,6 @@ const likeCard = (req, res, next) => Card.findByIdAndUpdate(
       next(err);
     }
   })
-  .catch(next);
 
 const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -92,7 +84,6 @@ const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
       next(err);
     }
   })
-  .catch(next);
 
 module.exports = {
   getCards,
