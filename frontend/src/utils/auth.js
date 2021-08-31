@@ -10,7 +10,7 @@ export const register = (email, password) => {
     },
     body: JSON.stringify({password, email})
   })
-  .then (res=>checkResponse(res))
+  .then (getResponse)
   .then((res) => {
     return res;
   })
@@ -26,7 +26,7 @@ export const login = (email, password) => {
     },
     body: JSON.stringify({password, email})
   })
-  .then (res=>checkResponse(res))
+  .then (getResponse)
 }
 
 export const getContent = () => {
@@ -37,7 +37,7 @@ export const getContent = () => {
         'Accept': 'application/json',
         "Content-Type": "application/json",
       }
-    }).then(res => checkResponse(res))
+    }).then(getResponse)
     .then(data => data)
   }
 
