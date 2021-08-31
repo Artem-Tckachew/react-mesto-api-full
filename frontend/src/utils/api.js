@@ -8,8 +8,6 @@ class Api {
 
   getInitialCards() {
     return fetch(`${this._address}/cards`, {
-      method: 'GET',
-      headers: this._headers,
       credentials: 'include',
     })
       .then(getResponse)
@@ -68,16 +66,7 @@ class Api {
     })
     .then(getResponse)
   }
-
-  changeLike(cardId, like) {
-    return fetch(`${this._address}/cards/${cardId}/likes`, {
-      method: like ? 'PUT' : 'DELETE',
-      headers: this._headers,
-      credentials: 'include',
-    })
-    .then(getResponse)
-  }
-
+  
   postLike(cardId) {
     return fetch(`${this._address}/cards/${cardId}/likes`,
       {
