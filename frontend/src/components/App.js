@@ -34,6 +34,25 @@ function App() {
   const [email, setEmail] = useState('');
 
   const history = useHistory();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      api.getUserData()
+      .then((userData) => {
+        setCurrentUser(userData);
+      })
+      .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
+  
+      setIsCardsLoading(true);
+      setIsCardsLoadError();
+      api.getInitialCards()
+      .then((cardData) => {
+          setCards(cardData);
+      })
+      .catch(err => setIsCardsLoadError(err))
+      .finally(() => setIsCardsLoading(false));
+    }
+  }, [isLoggedIn]);
   
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -119,25 +138,6 @@ function handleUpdateAvatar(item){
   .catch((error) => console.log(`Ошибка загрузки данных пользователя с сервера: ${error}`))
   .finally(() => setIsLoading(false));
 }
-
-useEffect(() => {
-  if (isLoggedIn) {
-    api.getUserData()
-    .then((userData) => {
-      setCurrentUser(userData);
-    })
-    .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
-
-    setIsCardsLoading(true);
-    setIsCardsLoadError();
-    api.getInitialCards()
-    .then((cardData) => {
-        setCards(cardData);
-    })
-    .catch(err => setIsCardsLoadError(err))
-    .finally(() => setIsCardsLoading(false));
-  }
-}, [isLoggedIn]);
 
 function onRegister({ email, password }){
   auth.register(email, password)
