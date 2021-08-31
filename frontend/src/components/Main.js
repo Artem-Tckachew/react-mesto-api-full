@@ -31,8 +31,17 @@ function Main({cards, onEditProfile, onAddPlace, onEditAvatar, onCardClick, onCa
 
 {!isCardsLoading && !isCardsError && (
           <ul className='elements__list'>
-      {cards.map(card => (<Card key={card._id} card={card} onCardClick={onCardClick} onCardLike={onCardLike} onCardDelete={onCardDelete} />
-       ))}
+      {props.cards.map(card => {
+            
+            return (<Card
+              onCardDelete={props.onCardDelete}
+              onCardLike={props.onCardLike}
+              card={card}
+              onClick={props.onCardClick}
+              key={card._id} link={card.link}
+              name={card.name}
+               />)
+          })}
        </ul>
      )}
         </section>
