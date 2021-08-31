@@ -14,7 +14,7 @@ import Register from './Register';
 import Login from './Login';
 import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
-import auth from '../utils/auth';
+import * as auth from '../utils/auth';
 
 function App() {
 
@@ -174,11 +174,11 @@ function onLogin({ email, password }){
 }
 
 function onSignOut(){
-  localStorage.removeItem('jwt');
+  auth.logout().then(() => {
   setIsLoggedIn(false);
   history.push('/signin');
+})
 }
-
   return (
      <CurrentUserContext.Provider value={currentUser}>
   <div className="page">
