@@ -7,6 +7,7 @@ class Api {
 
   getUserData() {
     return fetch(`${this._address}/users/me`, {
+      method: 'GET',
       credentials: 'include',
     })
     .then(getResponse)
