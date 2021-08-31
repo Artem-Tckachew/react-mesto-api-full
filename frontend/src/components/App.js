@@ -34,23 +34,17 @@ function App() {
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-    if (isLoggedIn) {
-      api.getUserData()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
-  
-      setIsCardsLoading(true);
-      setIsCardsLoadError();
-      api.getInitialCards()
-      .then((cardData) => {
-          setCards(cardData);
-      })
-      .catch(err => setIsCardsLoadError(err))
-      .finally(() => setIsCardsLoading(false));
-    }
-  }, [isLoggedIn]);
+  api.getAllData().then((res) => {
+    const [user, cards] = res;
+    setCurrentUser(user);
+    setCards(cards);
+    console.log(cards);
+    console.log(user);
+  })
+    .catch(res => {
+      console.log(`Error: ${res.status}`)
+    })
+}, [isLoggedIn])
 
   const history = useHistory();
   

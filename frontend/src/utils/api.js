@@ -20,6 +20,10 @@ class Api {
       .then(getResponse)
   }
 
+  getAllData() {
+    return Promise.all([this.getUserData(), this.getInitialCards()])
+  }
+
   addCard(card) {
     return fetch(`${this._address}/cards`, {
       method: 'POST',
