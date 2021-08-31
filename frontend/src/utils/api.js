@@ -6,10 +6,6 @@ class Api {
     this._address = address;
   }
 
-  getAllData() {
-    return Promise.all([this.getUserData(), this.getInitialCards()])
-  }
-
   getInitialCards() {
     return fetch(`${this._address}/cards`, {
       method: 'GET',
@@ -43,8 +39,6 @@ class Api {
 
   getUserData() {
     return fetch(`${this._address}/users/me`, {
-      method: 'GET',
-      headers: this._headers,
       credentials: 'include',
     })
     .then(getResponse)
