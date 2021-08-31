@@ -159,10 +159,11 @@ function onRegister({ email, password }){
 function onLogin({ email, password }){
   auth.login(email, password)
     .then((res) => {
-      setIsLoggedIn(true);
+      if (res.token) {
       setEmail(email);
+      setIsLoggedIn(true);
       history.push('/');
-      console.log('push');
+      }
     })
     .catch(() => {
       setTooltipStatus({
