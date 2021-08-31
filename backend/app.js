@@ -27,6 +27,13 @@ app.use(cors({
   credentials: true,
 }));
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+app.use(limiter);
+
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
@@ -65,14 +72,6 @@ app.delete('/signout', logout);
 app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-
-app.use(limiter);
-
 app.use('*', () => {
   throw new NotFoundError('Запрашиваемый ресурс не найден.');
 });
