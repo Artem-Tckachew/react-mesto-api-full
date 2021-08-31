@@ -67,7 +67,6 @@ const getUser = (req, res, next) => {
       }
       next(err);
     })
-    .catch(next);
 };
 
 const updateUser = (req, res, next) => {

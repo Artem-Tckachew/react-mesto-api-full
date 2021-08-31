@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const { isURL } = require('validator');
+const validator = require('validator');
 const {
   getUser,
   getUsers,
@@ -10,12 +10,12 @@ const {
 } = require('../controllers/users');
 
 router.get('/', getUsers);
+router.get('/me', currentUser);
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().hex().length(24),
   }),
 }), getUser);
-router.get('/me', currentUser);
 router.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
@@ -24,11 +24,10 @@ router.patch('/me', celebrate({
 }), updateUser);
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().custom((value) => {
-      if (!isURL(value)) {
-        throw new Error('Ссылка некоректная');
-      }
-      return value;
+    avatar: Joi.string().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      } return helpers.message('ссылка некорректная');
     }),
   }),
 }), updateAvatar);
