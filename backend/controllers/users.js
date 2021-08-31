@@ -16,6 +16,20 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
+const getUser = (req, res, next) => {
+  User.findById(req.params.userId)
+    .orFail(new NotFoundError('Нет пользователя с таким id'))
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new BadRequestError('Переданы некорректные данные');
+      }
+      next(err);
+    })
+};
+
 const currentUser = (res, req, next) => {
   User.findById(req.user._id)
     .then((user) => {
@@ -37,13 +51,26 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .then((user) => {
-      res.status(200).send(user);
-    })
+  User.findOne({ email })
+  .then((user) => {
+    if (user) {
+      throw new ConflictError('Пользователь с таким email уже существует');
+    } bcrypt.hash(password, 10)
+      .then((hash) => User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }))
+      .then((newuser) => {
+        res.send({
+          name: newuser.name,
+          about: newuser.about,
+          avatar: newuser.avatar,
+          email: newuser.email,
+        });
+      })
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
         throw new ConflictError('Такой e-mail уже зарегистрирован');
@@ -52,21 +79,8 @@ const createUser = (req, res, next) => {
       }
       next(err);
     })
+  })
     .catch(next);
-};
-
-const getUser = (req, res, next) => {
-  User.findById(req.params.userId)
-    .orFail(new Error('Error'))
-    .then((user) => {
-      res.status(200).send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      }
-      next(err);
-    })
 };
 
 const updateUser = (req, res, next) => {
@@ -148,8 +162,8 @@ const logout = (req, res) => {
 
 module.exports = {
   getUsers,
-  createUser,
   getUser,
+  createUser,
   updateUser,
   updateAvatar,
   login,
