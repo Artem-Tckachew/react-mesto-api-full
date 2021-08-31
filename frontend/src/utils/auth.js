@@ -1,60 +1,64 @@
-const BASE_URL = 'http://artemtkachev.backend.nomoredomains.monster',
+import {getResponse} from './utils';
 
-function checkResponse(res) {
-  if (res.ok) {
-    return res.json();
+class Auth {
+  constructor({address}) {
+    this._address = address;
+    this._headers = headers;
   }
-  return Promise.reject(`Ошибка: ${res.status}`)
-}
 
-export const register = (password, email) => {
-  return fetch(`${BASE_URL}signup`, {
+register(email, password) {
+  return fetch(`${this._address}/signup`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       "Content-Type": "application/json" 
     },
-    body: JSON.stringify({password, email})
+    body: JSON.stringify({email, password})
   })
-  
-  .then (res=>checkResponse(res))
+  .then(getResponse)
   .then((res) => {
     return res;
-  })
-  .catch((err) => console.log(err));
+})
+.catch((err) => console.log(err));
 }
 
-export const login = (password, email) => {
-  return fetch(`${BASE_URL}signin`, {
+login(email, password) {
+  return fetch(`${this._address}/signin`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       "Content-Type": "application/json" 
     },
-    body: JSON.stringify({password, email})
+    body: JSON.stringify({email, password})
   })
-  .then (res=>checkResponse(res))
-}
+  .then(getResponse)
+};
 
-
-export const getContent = () => {
-  return fetch(`${BASE_URL}users/me`, {
+getContent() {
+  return fetch(`${this._address}/users/me`, {
     method: 'GET',
     credentials: 'include',
     headers: {
       'Accept': 'application/json',
       "Content-Type": "application/json",
     }
-  }).then(res => checkResponse(res))
+  }).then(getResponse)
   .then(data => data)
 }
 
-export const logout = () => {
-  return fetch(`${BASE_URL}signout`, {
+signOut = () => {
+  return fetch(`${this._address}/signout`, {
     method: 'DELETE',
     credentials: 'include',
     headers: {
       "Content-Type": "application/json",
     }
-  })
+  }).then(getResponse)
+};
 }
+
+const auth = new Auth({
+  address: 'http://artemtkachev.backend.nomoredomains.monster',
+});
+
+export default auth;
