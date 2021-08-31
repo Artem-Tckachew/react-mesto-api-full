@@ -72,7 +72,7 @@ class Api {
   }
 
   changeLike(cardId, like) {
-    return fetch(`${this._address}/cards/likes/${cardId}`, {
+    return fetch(`${this._address}/cards/${cardId}/likes`, {
       method: like ? 'PUT' : 'DELETE',
       headers: this._headers,
       credentials: 'include',
