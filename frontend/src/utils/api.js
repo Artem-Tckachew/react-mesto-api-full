@@ -1,9 +1,15 @@
 import {options} from './constants'
 import {getResponse} from './utils';
 class Api {
-  constructor({ address, headers }) {
-    this._headers = headers;
+  constructor({ address }) {
     this._address = address;
+  }
+
+  getUserData() {
+    return fetch(`${this._address}/users/me`, {
+      credentials: 'include',
+    })
+    .then(getResponse)
   }
 
   getInitialCards() {
@@ -16,8 +22,10 @@ class Api {
   addCard(card) {
     return fetch(`${this._address}/cards`, {
       method: 'POST',
-      headers: this._headers,
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         name: card.name,
         link: card.link
@@ -29,14 +37,6 @@ class Api {
   deleteCard(cardId) {
     return fetch(`${this._address}/cards/${cardId}`, {
       method: 'DELETE',
-      headers: this._headers,
-      credentials: 'include',
-    })
-    .then(getResponse)
-  }
-
-  getUserData() {
-    return fetch(`${this._address}/users/me`, {
       credentials: 'include',
     })
     .then(getResponse)
@@ -45,8 +45,10 @@ class Api {
   setUserData(data) {
     return fetch(`${this._address}/users/me`, {
       method: 'PATCH',
-      headers: this._headers,
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         name: data.name,
         about: data.about
@@ -58,15 +60,17 @@ class Api {
   setUserAvatar({avatar}) {
     return fetch(`${this._address}/users/me/avatar`, {
       method: 'PATCH',
-      headers: this._headers,
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         avatar
       })
     })
     .then(getResponse)
   }
-  
+
   postLike(cardId) {
     return fetch(`${this._address}/cards/${cardId}/likes`,
       {
