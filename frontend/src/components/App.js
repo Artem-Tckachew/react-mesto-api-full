@@ -173,13 +173,11 @@ function onRegister({ email, password }){
 function onLogin(data){
   const { password, email } = data;
   auth.login(email, password)
-    .then((data) => {
-      if (data.token) {
+    .then(() =>{
       setIsLoggedIn(true);
       setEmail(email);
       history.push('/');
       console.log('push');
-      }
     })
     .catch(() => {
       setTooltipStatus({
