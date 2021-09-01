@@ -36,7 +36,7 @@ export const getContent = () => {
       'Accept': 'application/json',
       "Content-Type": "application/json",
     }
-  }).then(res => checkResponse(res))
+  }).then(getResponse)
   .then(data => data)
 }
 
