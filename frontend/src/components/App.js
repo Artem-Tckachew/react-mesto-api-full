@@ -14,7 +14,7 @@ import Register from './Register';
 import Login from './Login';
 import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
-import {auth} from '../utils/auth';
+import auth from '../utils/auth';
 
 function App() {
 
