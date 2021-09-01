@@ -72,6 +72,7 @@ app.delete('/signout', logout);
 app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
 app.use('*', () => {
   throw new NotFoundError('Запрашиваемый ресурс не найден.');
 });

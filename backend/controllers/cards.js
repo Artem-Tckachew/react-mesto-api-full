@@ -34,17 +34,16 @@ const deleteCard = (req, res, next) => {
       if (!card) {
         throw new NotFoundError('Нет карточки c таким id');
       } else if (card.owner.toString() !== req.user._id) {
-        next (new AuthError('Недостаточно прав для удаления данной карточки'));
+        next(new AuthError('Недостаточно прав для удаления данной карточки'));
       }
-    return Card.findByIdAndRemove(req.params.cardId)
-    .then((deleteCard) => {
-      res.status(200).send(deleteCard);
+      return Card.findByIdAndRemove(req.params.cardId)
+        .then((cardDel) => {
+          res.status(200).send(cardDel);
+        })
+        .catch(next);
     })
     .catch(next);
-})
-.catch(next);
 };
-
 
 const likeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -64,7 +63,7 @@ const likeCard = (req, res, next) => Card.findByIdAndUpdate(
     } else {
       next(err);
     }
-  })
+  });
 
 const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -83,7 +82,7 @@ const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
     } else {
       next(err);
     }
-  })
+  });
 
 module.exports = {
   getCards,

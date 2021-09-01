@@ -27,7 +27,7 @@ const getUser = (req, res, next) => {
         throw new BadRequestError('Переданы некорректные данные');
       }
       next(err);
-    })
+    });
 };
 
 const currentUser = (res, req, next) => {
@@ -52,34 +52,34 @@ const createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
   User.findOne({ email })
-  .then((user) => {
-    if (user) {
-      throw new ConflictError('Пользователь с таким email уже существует');
-    } bcrypt.hash(password, 10)
-      .then((hash) => User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      }))
-      .then((newuser) => {
-        res.send({
-          name: newuser.name,
-          about: newuser.about,
-          avatar: newuser.avatar,
-          email: newuser.email,
+    .then((user) => {
+      if (user) {
+        throw new ConflictError('Пользователь с таким email уже существует');
+      } bcrypt.hash(password, 10)
+        .then((hash) => User.create({
+          name,
+          about,
+          avatar,
+          email,
+          password: hash,
+        }))
+        .then((newuser) => {
+          res.send({
+            name: newuser.name,
+            about: newuser.about,
+            avatar: newuser.avatar,
+            email: newuser.email,
+          });
+        })
+        .catch((err) => {
+          if (err.name === 'MongoError' && err.code === 11000) {
+            throw new ConflictError('Такой e-mail уже зарегистрирован');
+          } else if (err.name === 'ValidationError') {
+            throw new BadRequestError('Переданы некорректные данные');
+          }
+          next(err);
         });
-      })
-    .catch((err) => {
-      if (err.name === 'MongoError' && err.code === 11000) {
-        throw new ConflictError('Такой e-mail уже зарегистрирован');
-      } else if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      }
-      next(err);
     })
-  })
     .catch(next);
 };
 
@@ -134,18 +134,18 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
-  .then((user) => {
-    const token = jwt.sign({ _id: user._id },
-      JWT_SECRET,
-      { expiresIn: '7d' });
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id },
+        JWT_SECRET,
+        { expiresIn: '7d' });
 
-    res.cookie('jwt', token, {
-      maxAge: 3600000,
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-    }).status(200).send({ token });
-  })
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      }).status(200).send({ token });
+    })
     .catch(() => {
       throw new UnauthorizedError('Неверные почта или пароль');
     })
@@ -168,5 +168,5 @@ module.exports = {
   updateAvatar,
   login,
   currentUser,
-  logout
+  logout,
 };
