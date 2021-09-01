@@ -37,7 +37,6 @@ export const getContent = () => {
       "Content-Type": "application/json",
     }
   }).then(getResponse)
-  .then(data => data)
 }
 
 export const logout = () => {
