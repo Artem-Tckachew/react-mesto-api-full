@@ -164,7 +164,6 @@ function onSignOut(){
   history.push('/signin');
 }
 
-const [isAuthChecking, setIsAuthChecking] = useState(true);
 useEffect(() => {
   const token = localStorage.getItem('jwt');
   if (token){
