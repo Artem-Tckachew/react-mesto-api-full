@@ -121,7 +121,6 @@ function handleUpdateAvatar(item){
 }
 
 useEffect(() => {
-  if (isLoggedIn) {
     api.getUserData()
     .then((userData) => {
       setCurrentUser(userData);
@@ -136,7 +135,6 @@ useEffect(() => {
     })
     .catch(err => setIsCardsLoadError(err))
     .finally(() => setIsCardsLoading(false));
-  }
 }, [isLoggedIn]);
 
 useEffect(() => {
@@ -173,11 +171,13 @@ function onRegister({ email, password }){
 function onLogin(data){
   const { password, email } = data;
   auth.login(email, password)
-    .then(() =>{
+    .then((data) => {
+      if (data.token) {
       setIsLoggedIn(true);
       setEmail(email);
       history.push('/');
       console.log('push');
+      }
     })
     .catch(() => {
       setTooltipStatus({
