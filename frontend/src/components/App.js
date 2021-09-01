@@ -41,12 +41,26 @@ function App() {
 
   function handleCardLike(card) {
     const isLiked = card.likes.some(i => i === currentUser._id);
-    api.changeLike(card._id, !isLiked)
-    .then((newCard) => {
-        setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
-    })
-    .catch((error) => console.log(`Ошибка загрузки лайков с сервера: ${error}`));
-} 
+    if (isLiked) {
+      api.deleteLike(card._id).then((newCard) => {
+        setCards((cards) => cards.map((el) =>
+          el._id === card._id ? newCard : el
+        ))
+      })
+        .catch(res => {
+          console.log(`Error: ${res.status}`)
+        })
+    } else {
+      api.postLike(card._id).then((newCard) => {
+        setCards((cards) => cards.map((el) =>
+          el._id === card._id ? newCard : el
+        ))
+      })
+        .catch(res => {
+          console.log(`Error: ${res.status}`)
+        })
+    }
+  }
 
 function handleAddPlaceSubmit(card) {
   setIsLoading(true)

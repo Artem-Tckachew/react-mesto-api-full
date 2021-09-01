@@ -80,6 +80,22 @@ class Api {
     .then(getResponse)
   }
 
+  postLike(cardId) {
+    return fetch(`${this._address}/cards/${cardId}/likes`, {
+        method: 'PUT',
+        credentials: 'include',
+      })
+      .then(getResponse)
+  }
+
+  deleteLike(cardId) {
+    return fetch(`${this._address}/cards/${cardId}/likes`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      .then(getResponse)
+  }
+
 }
 
 const api = new Api(options);
