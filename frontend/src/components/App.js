@@ -125,6 +125,22 @@ useEffect(() => {
   }
 }, [isLoggedIn]);
 
+useEffect(() => {
+auth.getContent().then(res => {
+  if (res) {
+
+    setIsLoggedIn(true);
+    setEmail(res.email);
+
+    history.push('/');
+  }
+})
+  .catch(res => {
+    console.log(`Error: ${res.status}`)
+  })
+}
+, [history])
+
 function onRegister({ email, password }){
   auth.register(email, password)
     .then((res) => {
@@ -132,7 +148,7 @@ function onRegister({ email, password }){
       setTooltipStatus({
         text: 'Вы успешно зарегистрировались', 
         iconType: 'success'
-      });
+      })
     })
     .catch(() => {
       setTooltipStatus({
@@ -144,11 +160,13 @@ function onRegister({ email, password }){
 
 function onLogin({ email, password }){
   auth.login(email, password)
-    .then((res) => {
+    .then((data) => {
+      if (data.token) {
       setIsLoggedIn(true);
       setEmail(email);
       history.push('/');
       console.log('push');
+      }
     })
     .catch(() => {
       setTooltipStatus({
@@ -159,37 +177,20 @@ function onLogin({ email, password }){
 }
 
 function onSignOut(){
-  localStorage.removeItem('jwt');
+  auth.logout()
+  .then(() => {
   setIsLoggedIn(false);
   history.push('/signin');
+})
+.catch(err => console.log(err))
 }
-
-const [isAuthChecking, setIsAuthChecking] = useState(true);
-useEffect(() => {
-  const token = localStorage.getItem('jwt');
-  if (token){
-    setIsAuthChecking(true);
-    auth.checkToken(token)
-    .then((res) => {
-      setEmail(res.data.email);
-      setIsLoggedIn(true);
-      history.push('/');
-    })
-    .catch(() => {
-      localStorage.removeItem('jwt');
-    })
-    .finally(() => setIsAuthChecking(false));
-  } else {
-    setIsAuthChecking(false)
-  }
-}, [history]);
 
   return (
      <CurrentUserContext.Provider value={currentUser}>
   <div className="page">
     <Header  email={email} onSignOut={onSignOut} />
     <Switch>
-            <ProtectedRoute isChecking={isAuthChecking} isLoggedIn={isLoggedIn} path="/"exact>
+            <ProtectedRoute isLoggedIn={isLoggedIn} path="/"exact>
     <Main onEditProfile={setIsEditProfilePopupOpen}  isCardsLoading={isCardsLoading} isCardsError={isCardsLoadError}
     onAddPlace={setIsAddPlacePopupOpen}
     onEditAvatar={setIsEditAvatarPopupOpen} 
