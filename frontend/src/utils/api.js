@@ -1,26 +1,23 @@
 import {options} from './constants'
 import {getResponse} from './utils';
 class Api {
-  constructor({ address, token, groupId }) {
-    this._token = token;
-    this._groupId = groupId;
+  constructor({ address }) {
+
     this._address = address;
   }
 
   getInitialCards() {
-    return fetch(`${this._address}/${this._groupId}/cards`, {
-      headers: {
-        authorization: this._token
-      }
+    return fetch(`${this._address}/cards`, {
+      credentials: 'include',
     })
       .then(getResponse)
   }
 
   addCard(card) {
-    return fetch(`${this._address}/${this._groupId}/cards`, {
+    return fetch(`${this._address}/cards`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        authorization: this._token,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -32,29 +29,25 @@ class Api {
   }
 
   deleteCard(cardId) {
-    return fetch(`${this._address}/${this._groupId}/cards/${cardId}`, {
+    return fetch(`${this._address}/cards/${cardId}`, {
       method: 'DELETE',
-      headers: {
-        authorization: this._token,
-      }
+      credentials: 'include',
     })
     .then(getResponse)
   }
 
   getUserData() {
-    return fetch(`${this._address}/${this._groupId}/users/me`, {
-      headers: {
-        authorization: this._token
-      }
+    return fetch(`${this._address}/users/me`, {
+      credentials: 'include',
     })
     .then(getResponse)
   }
 
   setUserData({name, about}) {
-    return fetch(`${this._address}/${this._groupId}/users/me`, {
+    return fetch(`${this._address}/users/me`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: {
-        authorization: this._token,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -66,7 +59,7 @@ class Api {
   }
 
   setUserAvatar({avatar}) {
-    return fetch(`${this._address}/${this._groupId}/users/me/avatar`, {
+    return fetch(`${this._address}/users/me/avatar`, {
       method: 'PATCH',
       headers: {
         authorization: this._token,
@@ -80,12 +73,9 @@ class Api {
   }
 
   changeLike(cardId, like) {
-    return fetch(`${this._address}/${this._groupId}/cards/likes/${cardId}`, {
+    return fetch(`${this._address}/cards/${cardId}/likes`, {
       method: like ? 'PUT' : 'DELETE',
-      headers: {
-        authorization: this._token,
-        'Content-Type': 'application/json'
-      }
+      credentials: 'include',
     })
     .then(getResponse)
   }
