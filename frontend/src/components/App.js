@@ -35,7 +35,9 @@ function App() {
 
   useEffect(() => {
   api.getAllData().then((res) => {
+    debugger
     const [user, cards] = res;
+    debugger
     setCurrentUser(user);
     setCards(cards);
     console.log(cards);
@@ -168,7 +170,7 @@ function onLogin({ email, password }){
 }
 
 function onSignOut(){
-  auth.logout().then(() => {
+  auth.signOut().then(() => {
   setIsLoggedIn(false);
   history.push('/signin');
 })
