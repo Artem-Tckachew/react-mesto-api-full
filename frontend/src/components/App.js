@@ -142,10 +142,8 @@ useEffect(() => {
 useEffect(() => {
 auth.getContent().then(res => {
   if (res) {
-
     setIsLoggedIn(true);
     setEmail(res.email);
-
     history.push('/');
   }
 })
@@ -172,7 +170,8 @@ function onRegister({ email, password }){
     })
 } 
 
-function onLogin({ email, password }){
+function onLogin(data){
+  const { password, email } = data;
   auth.login(email, password)
     .then((data) => {
       if (data.token) {
