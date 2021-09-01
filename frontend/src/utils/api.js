@@ -38,10 +38,15 @@ class Api {
 
   getUserData() {
     return fetch(`${this._address}/users/me`, {
-      credentials: 'include',
-    })
-    .then(getResponse)
-  }
+      method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Accept': 'application/json',
+      "Content-Type": "application/json",
+    }
+  }).then(getResponse)
+  .then(data => data)
+}
 
   setUserData({name, about}) {
     return fetch(`${this._address}/users/me`, {
