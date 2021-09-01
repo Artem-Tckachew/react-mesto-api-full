@@ -14,7 +14,7 @@ import Register from './Register';
 import Login from './Login';
 import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
-import auth from '../utils/auth';
+import * as auth from '../utils/auth';
 
 function App() {
 
@@ -33,21 +33,6 @@ function App() {
   const [isCardsLoadError, setIsCardsLoadError] = useState();
   const [email, setEmail] = useState('');
 
-  useEffect(() => {
-  api.getAllData().then((res) => {
-    debugger
-    const [user, cards] = res;
-    debugger
-    setCurrentUser(user);
-    setCards(cards);
-    console.log(cards);
-    console.log(user);
-  })
-    .catch(res => {
-      console.log(`Error: ${res.status}`)
-    })
-}, [isLoggedIn])
-
   const history = useHistory();
   
   function handleCardClick(card) {
@@ -55,28 +40,14 @@ function App() {
   }
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i === currentUser._id);
-    if (isLiked) {
-      api.deleteLike(card._id).then((newCard) => {
-        setCards((cards) => cards.map((el) =>
-          el._id === card._id ? newCard : el
-        ))
-      })
-        .catch(res => {
-          console.log(`Error: ${res.status}`)
-        })
-    } else {
-      api.postLike(card._id).then((newCard) => {
-        setCards((cards) => cards.map((el) =>
-          el._id === card._id ? newCard : el
-        ))
-      })
-        .catch(res => {
-          console.log(`Error: ${res.status}`)
-        })
-    }
-  }
-  
+    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    api.changeLike(card._id, !isLiked)
+    .then((newCard) => {
+        setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+    })
+    .catch((error) => console.log(`Ошибка загрузки лайков с сервера: ${error}`));
+} 
+
 function handleAddPlaceSubmit(card) {
   setIsLoading(true)
   api.addCard(card)
@@ -135,6 +106,25 @@ function handleUpdateAvatar(item){
   .finally(() => setIsLoading(false));
 }
 
+useEffect(() => {
+  if (isLoggedIn) {
+    api.getUserData()
+    .then((userData) => {
+      setCurrentUser(userData);
+    })
+    .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
+
+    setIsCardsLoading(true);
+    setIsCardsLoadError();
+    api.getInitialCards()
+    .then((cardData) => {
+        setCards(cardData);
+    })
+    .catch(err => setIsCardsLoadError(err))
+    .finally(() => setIsCardsLoading(false));
+  }
+}, [isLoggedIn]);
+
 function onRegister({ email, password }){
   auth.register(email, password)
     .then((res) => {
@@ -155,11 +145,10 @@ function onRegister({ email, password }){
 function onLogin({ email, password }){
   auth.login(email, password)
     .then((res) => {
-      if (res.token) {
-      setEmail(email);
       setIsLoggedIn(true);
+      setEmail(email);
       history.push('/');
-      }
+      console.log('push');
     })
     .catch(() => {
       setTooltipStatus({
@@ -170,17 +159,37 @@ function onLogin({ email, password }){
 }
 
 function onSignOut(){
-  auth.signOut().then(() => {
+  localStorage.removeItem('jwt');
   setIsLoggedIn(false);
   history.push('/signin');
-})
 }
+
+const [isAuthChecking, setIsAuthChecking] = useState(true);
+useEffect(() => {
+  const token = localStorage.getItem('jwt');
+  if (token){
+    setIsAuthChecking(true);
+    auth.checkToken(token)
+    .then((res) => {
+      setEmail(res.data.email);
+      setIsLoggedIn(true);
+      history.push('/');
+    })
+    .catch(() => {
+      localStorage.removeItem('jwt');
+    })
+    .finally(() => setIsAuthChecking(false));
+  } else {
+    setIsAuthChecking(false)
+  }
+}, [history]);
+
   return (
      <CurrentUserContext.Provider value={currentUser}>
   <div className="page">
     <Header  email={email} onSignOut={onSignOut} />
     <Switch>
-            <ProtectedRoute isLoggedIn={isLoggedIn} path="/"exact>
+            <ProtectedRoute isChecking={isAuthChecking} isLoggedIn={isLoggedIn} path="/"exact>
     <Main onEditProfile={setIsEditProfilePopupOpen}  isCardsLoading={isCardsLoading} isCardsError={isCardsLoadError}
     onAddPlace={setIsAddPlacePopupOpen}
     onEditAvatar={setIsEditAvatarPopupOpen} 
