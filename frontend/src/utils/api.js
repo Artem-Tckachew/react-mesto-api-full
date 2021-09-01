@@ -61,8 +61,8 @@ class Api {
   setUserAvatar({avatar}) {
     return fetch(`${this._address}/users/me/avatar`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: {
-        authorization: this._token,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
