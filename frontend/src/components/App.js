@@ -197,32 +197,12 @@ function onSignOut(){
 .catch(err => console.log(err))
 }
 
-const [isAuthChecking, setIsAuthChecking] = useState(true);
-useEffect(() => {
-  const token = cookie('jwt')
-  if (token){
-    setIsAuthChecking(true);
-    auth.checkToken(token)
-    .then((res) => {
-      setEmail(res.email);
-      setIsLoggedIn(true);
-      history.push('/');
-    })
-    .catch(() => {
-      cookie.removeItem('jwt');
-    })
-    .finally(() => setIsAuthChecking(false));
-  } else {
-    setIsAuthChecking(false)
-  }
-}, [history]);
-
   return (
      <CurrentUserContext.Provider value={currentUser}>
   <div className="page">
     <Header  email={email} onSignOut={onSignOut} />
     <Switch>
-            <ProtectedRoute isChecking={isAuthChecking} isLoggedIn={isLoggedIn} path="/"exact>
+            <ProtectedRoute isLoggedIn={isLoggedIn} path="/"exact>
     <Main onEditProfile={setIsEditProfilePopupOpen}  isCardsLoading={isCardsLoading} isCardsError={isCardsLoadError}
     onAddPlace={setIsAddPlacePopupOpen}
     onEditAvatar={setIsEditAvatarPopupOpen} 
