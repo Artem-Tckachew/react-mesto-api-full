@@ -121,7 +121,6 @@ function handleUpdateAvatar(item){
 }
 
 useEffect(() => {
-  if (isLoggedIn) {
     api.getUserData()
     .then((userData) => {
       setCurrentUser(userData);
@@ -135,7 +134,6 @@ useEffect(() => {
     })
     .catch(err => setIsCardsLoadError(err))
     .finally(() => setIsCardsLoading(false));
-  }
 }, [isLoggedIn]);
 
 useEffect(() => {
