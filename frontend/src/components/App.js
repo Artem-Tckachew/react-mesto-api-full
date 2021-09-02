@@ -6,7 +6,7 @@ import ImagePopup from './ImagePopup'
 import EditProfilePopup from './EditProfilePopup'
 import EditAvatarPopup from './EditAvatarPopup'
 import AddPlacePopup from './AddPlacePopup'
-import {React, useState, useEffect} from 'react'
+import React from 'react'
 import api from '../utils/api'
 import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import { Route, useHistory, Switch, Redirect } from 'react-router-dom';
@@ -18,20 +18,20 @@ import auth from '../utils/auth';
 
 function App() {
 
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [currentUser, setCurrentUser] = useState({});
-  const [cards, setCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [cardForDelete, setCardForDelete] = useState(null);
-  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [tooltipStatus, setTooltipStatus] = useState();
-  const [isCardsLoading, setIsCardsLoading] = useState(false);
-  const [isCardsLoadError, setIsCardsLoadError] = useState();
-  const [email, setEmail] = useState('');
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
+  const [selectedCard, setSelectedCard] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState({});
+  const [cards, setCards] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [cardForDelete, setCardForDelete] = React.useState(null);
+  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [tooltipStatus, setTooltipStatus] = React.useState();
+  const [isCardsLoading, setIsCardsLoading] = React.useState(false);
+  const [isCardsLoadError, setIsCardsLoadError] = React.useState();
+  const [email, setEmail] = React.useState('');
 
   const history = useHistory();
   
@@ -120,29 +120,24 @@ function handleUpdateAvatar(item){
   .finally(() => setIsLoading(false));
 }
 
-useEffect(() => {
+React.useEffect(() => {
   if (isLoggedIn) {
-    api.getUserData()
-    .then((userData) => {
-      setCurrentUser(userData);
-    })
-    .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
-    setIsCardsLoading(true);
-    setIsCardsLoadError();
-    api.getInitialCards()
-    .then((cardData) => {
-        setCards(cardData);
-    })
-    .catch(err => setIsCardsLoadError(err))
-    .finally(() => setIsCardsLoading(false));
+    const promises = [api.getUserData(), api.getInitialCards()];
+
+    Promise.all(promises)
+      .then(([userData, initialCards]) => {
+        setCurrentUser(userData);
+        setCards(initialCards);
+      })
+      .catch((result) => console.log(`${result} при загрузке данных`));
   }
 }, [isLoggedIn]);
 
-useEffect(() => {
-auth.getContent().then(res => {
-  if (res) {
+const tokenCheck = React.useCallback(() => {
+  auth.getContent().then((result) => {
+    if (result) {
     setIsLoggedIn(true);
-    setEmail(res.email);
+    setEmail(result.email);
     history.push('/');
   }
 })
@@ -151,6 +146,16 @@ auth.getContent().then(res => {
   })
 }
 , [history])
+
+React.useEffect(() => {
+  tokenCheck();
+}, [tokenCheck]);
+
+React.useEffect(() => {
+  if (loggedIn) {
+    history.push('/')
+  }
+}, [isLoggedIn, history])
 
 function onRegister({ email, password }){
   auth.register(email, password)
@@ -173,12 +178,10 @@ function onLogin(data){
   const { password, email } = data;
   auth.login(email, password)
     .then((data) => {
-      if (data.token) {
       setIsLoggedIn(true);
       setEmail(email);
       history.push('/');
       console.log('push');
-      }
     })
     .catch(() => {
       setTooltipStatus({
