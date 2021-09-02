@@ -36,18 +36,20 @@ function App() {
   const history = useHistory();
 
   const tokenCheck = React.useCallback(() => {
-    auth.getContent().then(res => {
-      if (res) {
+    auth.getContent().then((result) => {
+      if (result) {
         setIsLoggedIn(true);
-        setEmail(res.email);
+        setEmail(result.email);
         history.push('/');
+      } else {
+        setTooltipStatus({
+          text: 'Вы успешно зарегистрировались', 
+          iconType: 'success'
+        })
       }
     })
-      .catch(res => {
-        console.log(`Error: ${res.status}`)
-      })
-    }
-    , [history])
+      .catch((result) => console.log(`${result} при проверке токена`));
+  }, [history])
     
     useEffect(() => {
       tokenCheck();
