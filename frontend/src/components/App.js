@@ -152,7 +152,7 @@ React.useEffect(() => {
 }, [tokenCheck]);
 
 React.useEffect(() => {
-  if (loggedIn) {
+  if (isLoggedIn) {
     history.push('/')
   }
 }, [isLoggedIn, history])
