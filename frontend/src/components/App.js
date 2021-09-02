@@ -6,7 +6,7 @@ import ImagePopup from './ImagePopup'
 import EditProfilePopup from './EditProfilePopup'
 import EditAvatarPopup from './EditAvatarPopup'
 import AddPlacePopup from './AddPlacePopup'
-import {React, useState, useEffect} from 'react'
+import {React, useState, useEffect } from 'react'
 import api from '../utils/api'
 import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import { Route, useHistory, Switch, Redirect } from 'react-router-dom';
@@ -34,26 +34,6 @@ function App() {
   const [email, setEmail] = useState('');
 
   const history = useHistory();
-
-  const tokenCheck = React.useCallback(() => {
-    auth.getContent().then((result) => {
-      if (result) {
-        setIsLoggedIn(true);
-        setEmail(result.email);
-        history.push('/');
-      } else {
-        setTooltipStatus({
-          text: 'Вы успешно зарегистрировались', 
-          iconType: 'success'
-        })
-      }
-    })
-      .catch((result) => console.log(`${result} при проверке токена`));
-  }, [history])
-    
-    useEffect(() => {
-      tokenCheck();
-    }, [tokenCheck]);
   
   function handleCardClick(card) {
     setSelectedCard(card);
