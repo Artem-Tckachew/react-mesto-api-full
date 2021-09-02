@@ -98,9 +98,9 @@ function handleCardDelete(evt) {
     setCardForDelete(undefined);
   }
 
-function handleUpdateUser(item){
+function handleUpdateUser(currentUser){
   setIsLoading(true);
-  api.setUserData(item)
+  api.setUserData(currentUser)
     .then(res => {
       setCurrentUser(res);
       closeAllPopups()
@@ -109,9 +109,9 @@ function handleUpdateUser(item){
     .finally(() => setIsLoading(false));
 }
 
-function handleUpdateAvatar(item){
+function handleUpdateAvatar(currentUser){
   setIsLoading(true)
-  api.setUserAvatar(item)
+  api.setUserAvatar(currentUser)
   .then(res => {
     setCurrentUser(res);
     closeAllPopups()
