@@ -18,8 +18,8 @@ router.get('/:userId', celebrate({
 }), getUser);
 router.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
   }),
 }), updateUser);
 router.patch('/me/avatar', celebrate({
@@ -27,7 +27,7 @@ router.patch('/me/avatar', celebrate({
     avatar: Joi.string().custom((value, helpers) => {
       if (validator.isURL(value)) {
         return value;
-      } return helpers.message('Переданна не валидная ссылка');
+      } return helpers.message('ссылка некорректная');
     }),
   }),
 }), updateAvatar);
