@@ -17,7 +17,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.user._id)
+  User.findById(req.params.userId)
     .orFail(new NotFoundError('Нет пользователя с таким id'))
     .then((user) => {
       res.status(200).send(user);
@@ -159,6 +159,8 @@ const logout = (req, res) => {
     secure: true,
   }).status(200).end();
 };
+
+
 
 module.exports = {
   getUsers,
