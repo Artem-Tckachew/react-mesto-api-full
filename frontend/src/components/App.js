@@ -128,7 +128,6 @@ useEffect(() => {
       console.log(userData)
     })
     .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
-    console.log(userData)
     setIsCardsLoading(true);
     setIsCardsLoadError();
     api.getInitialCards()
