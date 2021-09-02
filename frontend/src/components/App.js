@@ -26,7 +26,7 @@ function App() {
   const [cards, setCards] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [cardForDelete, setCardForDelete] = React.useState(null);
-  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = React.seState(false);
+  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [tooltipStatus, setTooltipStatus] = React.useState();
   const [isCardsLoading, setIsCardsLoading] = React.useState(false);
