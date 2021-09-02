@@ -124,9 +124,7 @@ useEffect(() => {
   if (isLoggedIn) {
     api.getUserData()
     .then((userData) => {
-      if (userData.token) {
       setCurrentUser(userData);
-      }
     })
     .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
     setIsCardsLoading(true);
@@ -201,17 +199,17 @@ function onSignOut(){
 
 const [isAuthChecking, setIsAuthChecking] = useState(true);
 useEffect(() => {
-  const token = localStorage.getItem('jwt');
+  const token = cookie('jwt')
   if (token){
     setIsAuthChecking(true);
     auth.checkToken(token)
     .then((res) => {
-      setEmail(res.data.email);
+      setEmail(res.email);
       setIsLoggedIn(true);
       history.push('/');
     })
     .catch(() => {
-      localStorage.removeItem('jwt');
+      cookie.removeItem('jwt');
     })
     .finally(() => setIsAuthChecking(false));
   } else {
