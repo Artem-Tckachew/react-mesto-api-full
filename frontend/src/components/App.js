@@ -6,7 +6,7 @@ import ImagePopup from './ImagePopup'
 import EditProfilePopup from './EditProfilePopup'
 import EditAvatarPopup from './EditAvatarPopup'
 import AddPlacePopup from './AddPlacePopup'
-import {React, useState, useEffect } from 'react'
+import React from 'react'
 import api from '../utils/api'
 import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import { Route, useHistory, Switch, Redirect } from 'react-router-dom';
@@ -18,22 +18,46 @@ import * as auth from '../utils/auth';
 
 function App() {
 
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [currentUser, setCurrentUser] = useState({});
-  const [cards, setCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [cardForDelete, setCardForDelete] = useState(null);
-  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [tooltipStatus, setTooltipStatus] = useState();
-  const [isCardsLoading, setIsCardsLoading] = useState(false);
-  const [isCardsLoadError, setIsCardsLoadError] = useState();
-  const [email, setEmail] = useState('');
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
+  const [selectedCard, setSelectedCard] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState({});
+  const [cards, setCards] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [cardForDelete, setCardForDelete] = React.useState(null);
+  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = React.seState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [tooltipStatus, setTooltipStatus] = React.useState();
+  const [isCardsLoading, setIsCardsLoading] = React.useState(false);
+  const [isCardsLoadError, setIsCardsLoadError] = React.useState();
+  const [email, setEmail] = React.useState('');
 
   const history = useHistory();
+
+  const handleTokenCheck = React.useCallback(() => {
+    auth.checkToken()
+      .then((res) => {
+        setIsLoggedIn(true);
+        setEmail(res.data.email);
+        history.push("/");
+      })
+      .catch((err) => {
+        if (err.status === 401) {
+          console.log("401 — Токен не передан или передан не в том формате");
+        }       
+      });
+  }, [history]);
+
+  React.useEffect(() => {
+    if (isLoggedIn) {
+      history.push('/')
+    }
+  }, [isLoggedIn, history])
+
+  React.useEffect(() => {
+    handleTokenCheck();
+}, [handleTokenCheck])
   
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -120,7 +144,7 @@ function handleUpdateAvatar(item){
   .finally(() => setIsLoading(false));
 }
 
-useEffect(() => {
+React.useEffect(() => {
   if (isLoggedIn) {
     api.getUserData()
     .then((userData) => {
@@ -138,11 +162,19 @@ useEffect(() => {
   }
 }, [isLoggedIn]);
 
-useEffect(() => {
-  if (isLoggedIn) {
-    history.push('/')
+React.useEffect(() => {
+auth.getContent().then(res => {
+  if (res) {
+    setIsLoggedIn(true);
+    setEmail(res.email);
+    history.push('/');
   }
-}, [isLoggedIn, history])
+})
+  .catch(res => {
+    console.log(`Error: ${res.status}`)
+  })
+}
+, [history])
 
 function onRegister({ email, password }){
   auth.register(email, password)
@@ -164,13 +196,12 @@ function onRegister({ email, password }){
 function onLogin(data){
   const { password, email } = data;
   auth.login(email, password)
-    .then((data) => {
-      if (data.token) {
+    .then((res) => {
+      handleTokenCheck();
       setIsLoggedIn(true);
       setEmail(email);
       history.push('/');
       console.log('push');
-      }
     })
     .catch(() => {
       setTooltipStatus({

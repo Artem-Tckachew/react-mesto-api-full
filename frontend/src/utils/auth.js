@@ -47,3 +47,13 @@ export const logout = () => {
     }
   })
 }
+
+export const checkToken = () => {
+  return fetch(`${BASE_URL}/users/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: 'include',
+  }).then(getResponse)
+};
