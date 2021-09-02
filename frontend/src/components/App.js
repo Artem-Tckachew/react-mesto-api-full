@@ -34,6 +34,24 @@ function App() {
   const [email, setEmail] = useState('');
 
   const history = useHistory();
+
+  const tokenCheck = React.useCallback(() => {
+    auth.getContent().then(res => {
+      if (res) {
+        setIsLoggedIn(true);
+        setEmail(res.email);
+        history.push('/');
+      }
+    })
+      .catch(res => {
+        console.log(`Error: ${res.status}`)
+      })
+    }
+    , [history])
+    
+    useEffect(() => {
+      tokenCheck();
+    }, [tokenCheck]);
   
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -98,9 +116,9 @@ function handleCardDelete(evt) {
     setCardForDelete(undefined);
   }
 
-function handleUpdateUser(currentUser){
+function handleUpdateUser(item){
   setIsLoading(true);
-  api.setUserData(currentUser)
+  api.setUserData(item)
     .then(res => {
       setCurrentUser(res);
       closeAllPopups()
@@ -109,9 +127,9 @@ function handleUpdateUser(currentUser){
     .finally(() => setIsLoading(false));
 }
 
-function handleUpdateAvatar(currentUser){
+function handleUpdateAvatar(item){
   setIsLoading(true)
-  api.setUserAvatar(currentUser)
+  api.setUserAvatar(item)
   .then(res => {
     setCurrentUser(res);
     closeAllPopups()
@@ -139,18 +157,10 @@ useEffect(() => {
 }, [isLoggedIn]);
 
 useEffect(() => {
-auth.getContent().then(res => {
-  if (res) {
-    setIsLoggedIn(true);
-    setEmail(res.email);
-    history.push('/');
+  if (loggedIn) {
+    history.push('/')
   }
-})
-  .catch(res => {
-    console.log(`Error: ${res.status}`)
-  })
-}
-, [history])
+}, [loggedIn, history])
 
 function onRegister({ email, password }){
   auth.register(email, password)
