@@ -124,9 +124,7 @@ useEffect(() => {
   if (isLoggedIn) {
     api.getUserData()
     .then(userData => {
-      debugger
       setCurrentUser(userData);
-      debugger
     })
     .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
 
@@ -144,10 +142,8 @@ useEffect(() => {
 useEffect(() => {
 auth.getContent().then(res => {
   if (res) {
-    debugger
     setIsLoggedIn(true);
     setEmail(res.email);
-    debugger
     history.push('/');
   }
 })
