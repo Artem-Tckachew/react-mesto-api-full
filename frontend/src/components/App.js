@@ -144,8 +144,10 @@ useEffect(() => {
 useEffect(() => {
 auth.getContent().then(res => {
   if (res) {
+    debugger
     setIsLoggedIn(true);
     setEmail(res.email);
+    debugger
     history.push('/');
   }
 })
