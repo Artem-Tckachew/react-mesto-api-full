@@ -1,62 +1,49 @@
-import { getResponse } from './utils';
+import {getResponse} from './utils';
 
-class Auth {
-  constructor({ address, headers, token }) {
-    this._address = address;
-    this._headers = headers;
-    this._token = token;
-  }
+const BASE_URL = 'https://artemtkachev.backend.nomoredomains.monster';
 
-  register(email, password) {
-    return fetch(`${this._address}/signup`, {
-      method: 'POST',
-      headers: this._headers,
-      credentials: "include",
-      body: JSON.stringify({
-        email,
-        password
-      }),
-    })
-      .then(getResponse)
-  };
+export const register = (email, password) => {
+  return fetch(`${BASE_URL}/signup`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json" 
+    },
+    body: JSON.stringify({email, password})
+  })
+  .then(getResponse)
+  .then((res) => {
+    return res;
+  })
+};
+export const login = (email, password) => {
+  return fetch(`${BASE_URL}/signin`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json" 
+    },
+    body: JSON.stringify({email, password})
+  })
+  .then(getResponse)
+};
 
-  login(email, password) {
-    return fetch(`${this._address}/signin`, {
-      method: 'POST',
-      headers: this._headers,
-      credentials: "include",
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
-    })
-      .then(getResponse)
-  };
-
-  getContent() {
-    return fetch(`${this._address}/users/me`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: "include",
-    }).then(getResponse)
-  }
-
-  logout = () => {
-    return fetch(`${this._address}/signout`, {
-      method: "DELETE",
-      credentials: "include",
-    }).then(getResponse)
-  }
+export const getContent = () => {
+  return fetch(`${BASE_URL}/users/me`, {
+    credentials: 'include',
+    headers: {
+      'Accept': 'application/json',
+      "Content-Type": "application/json",
+    }
+  }).then(getResponse)
 }
 
-const auth = new Auth({
-  address: 'https://artemtkachev.backend.nomoredomains.monster',
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-});
-
-export default auth;
+export const logout = () => {
+  return fetch(`${BASE_URL}/signout`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+    }
+  })
+}
