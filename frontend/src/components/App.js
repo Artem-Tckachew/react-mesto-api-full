@@ -123,11 +123,12 @@ function handleUpdateAvatar(item){
 useEffect(() => {
   if (isLoggedIn) {
     api.getUserData()
-    .then(userData => {
+    .then((userData) => {
       setCurrentUser(userData);
+      console.log(userData)
     })
     .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
-
+    console.log(userData)
     setIsCardsLoading(true);
     setIsCardsLoadError();
     api.getInitialCards()
