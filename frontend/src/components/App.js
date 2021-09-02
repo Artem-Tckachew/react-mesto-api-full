@@ -123,10 +123,8 @@ function handleUpdateAvatar(item){
 useEffect(() => {
   if (isLoggedIn) {
     api.getUserData()
-    .then((userData) => {
-      debugger
+    .then(userData => {
       setCurrentUser(userData);
-      debugger
     })
     .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
 
