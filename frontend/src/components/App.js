@@ -125,7 +125,6 @@ useEffect(() => {
     api.getUserData()
     .then((userData) => {
       setCurrentUser(userData);
-      console.log(userData)
     })
     .catch(err => console.log(`Загрузка информации о пользователе: ${err}`));
     setIsCardsLoading(true);
