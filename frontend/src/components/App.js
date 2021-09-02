@@ -157,10 +157,10 @@ useEffect(() => {
 }, [isLoggedIn]);
 
 useEffect(() => {
-  if (loggedIn) {
+  if (isLoggedIn) {
     history.push('/')
   }
-}, [loggedIn, history])
+}, [isLoggedIn, history])
 
 function onRegister({ email, password }){
   auth.register(email, password)
