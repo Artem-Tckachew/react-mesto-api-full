@@ -4,7 +4,7 @@ const validator = require('validator');
 const {
   getUsers,
   getUser,
-  updateUser,
+  updateProfile,
   updateAvatar,
   currentUser,
 } = require('../controllers/users');
@@ -21,7 +21,7 @@ router.patch('/me', celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
   }),
-}), updateUser);
+}), updateProfile);
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().custom((value, helpers) => {
