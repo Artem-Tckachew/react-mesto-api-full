@@ -26,8 +26,11 @@ app.disable('x-powered-by');
 app.use(cookieParser());
 app.use(requestLogger);
 app.use(cors({
-  origin: true,
+  origin: 'https://artemtkachev.nomoredomains.monster',
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
+  allowedHeaders: ['Authorization', 'Conteny-Type'],
   credentials: true,
+  optionsSuccessStatus: 200,
 }));
 
 const limiter = rateLimit({
