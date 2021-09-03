@@ -1,6 +1,0 @@
-@media screen and (max-width: 480px) {
-  .header_page-main {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-  }
-}

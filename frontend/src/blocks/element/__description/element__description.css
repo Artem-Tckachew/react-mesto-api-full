@@ -1,6 +1,0 @@
-.element__description{
-margin: 25px 15px 21px 21px;
-display: grid;
-grid-template-columns: 1fr 21px;
-grid-column-gap: 30px;
-}

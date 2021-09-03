@@ -1,7 +1,0 @@
-.overlay_active{
-  display: flex;
-  z-index: 2;
-  visibility: visible;
-  opacity: 1;
-  transition: visibility .5s, opacity .5s linear;
-}
