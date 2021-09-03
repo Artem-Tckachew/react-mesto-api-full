@@ -28,7 +28,6 @@ app.use(requestLogger);
 app.use(cors({
   origin: 'https://artemtkachev.nomoredomains.monster',
   methods: ['GET', 'PUT', 'POST', 'DELETE'],
-  allowedHeaders: ['Authorization', 'Conteny-Type'],
   credentials: true,
   optionsSuccessStatus: 200,
 }));
