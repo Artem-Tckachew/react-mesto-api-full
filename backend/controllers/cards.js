@@ -1,72 +1,103 @@
 const Card = require('../models/card');
-const NotFound = require('../errors/notFound');
-const CastError = require('../errors/castError');
-const ForbiddenError = require('../errors/forbiddenError');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const AuthError = require('../errors/AuthError');
 
-module.exports.getCards = (req, res, next) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
-      res.send(cards);
+      res.status(200).send(cards);
     })
     .catch(next);
 };
 
-module.exports.createCard = (req, res, next) => {
-  const { name, link } = req.body;
+const createCard = (req, res, next) => {
   const owner = req.user._id;
-
+  const { name, link } = req.body;
   Card.create({ name, link, owner })
     .then((card) => {
-      res.send(card);
+      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new CastError('переданны некорректные данные'));
+        throw new BadRequestError('Переданы некорректные данные.');
+      } else {
+        next(err);
       }
-      next(err);
-    });
-};
-
-module.exports.deleteCard = (req, res, next) => {
-  Card.findById(req.params.cardId)
-    .orFail(new NotFound('Карточки с таким айди не существует'))
-    .then((card) => {
-      if (card.owner.toString() !== req.user._id) {
-        next(new ForbiddenError('Недостаточно прав'));
-      }
-      return Card.findByIdAndRemove(req.params.cardId)
-        .then((deleteCard) => {
-          res.status(200).send(deleteCard);
-        })
-        .catch(next);
     })
     .catch(next);
 };
 
-module.exports.handleCardLike = (req, res, next) => {
-  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .orFail(new NotFound('Карточки с таким айди не существует'))
+const deleteCard = (req, res, next) => {
+  const { cardId } = req.params;
+  Card.findById(cardId)
     .then((card) => {
-      res.send(card);
+      if (!card) {
+        throw new NotFoundError('Нет карточки c таким id');
+      } else if (JSON.stringify(req.user._id) === JSON.stringify(card.owner)) {
+        Card.findByIdAndRemove(cardId)
+          .then((result) => {
+            res.send(result);
+          });
+      } else {
+        throw new AuthError('Недостаточно прав для удаления данной карточки');
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new CastError('Переданны некорректные данные'));
+        throw new BadRequestError('Переданы некорректные данные');
+      } else {
+        next(err);
       }
-      next(err);
-    });
+    })
+    .catch(next);
 };
 
-module.exports.handleCardDislike = (req, res, next) => {
-  Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(new NotFound('Карточки с таким айди не существует'))
-    .then((card) => {
-      res.send(card);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new CastError('Переданны некорректные данные'));
-      }
+const likeCard = (req, res, next) => Card.findByIdAndUpdate(
+  req.params.cardId,
+  { $addToSet: { likes: req.user._id } },
+
+  { new: true },
+)
+  .then((card) => {
+    if (!card) {
+      throw new NotFoundError('Нет карточки c таким id');
+    }
+    res.send(card);
+  })
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      throw new BadRequestError('Переданы некорректные данные');
+    } else {
       next(err);
-    });
+    }
+  })
+  .catch(next);
+
+const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
+  req.params.cardId,
+  { $pull: { likes: req.user._id } },
+  { new: true },
+)
+  .then((card) => {
+    if (!card) {
+      throw new NotFoundError('Нет карточки c таким id');
+    }
+    res.send(card);
+  })
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      throw new BadRequestError('Переданы некорректные данные');
+    } else {
+      next(err);
+    }
+  })
+  .catch(next);
+
+module.exports = {
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
 };
