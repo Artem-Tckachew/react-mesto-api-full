@@ -51,34 +51,20 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  User.findOne({ email })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
     .then((user) => {
-      if (user) {
-        throw new ConflictError('Пользователь с таким email уже существует');
-      } bcrypt.hash(password, 10)
-        .then((hash) => User.create({
-          name,
-          about,
-          avatar,
-          email,
-          password: hash,
-        }))
-        .then((newuser) => {
-          res.send({
-            name: newuser.name,
-            about: newuser.about,
-            avatar: newuser.avatar,
-            email: newuser.email,
-          });
-        })
-        .catch((err) => {
-          if (err.name === 'MongoError' && err.code === 11000) {
-            throw new ConflictError('Такой e-mail уже зарегистрирован');
-          } else if (err.name === 'ValidationError') {
-            throw new BadRequestError('Переданы некорректные данные');
-          }
-          next(err);
-        });
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'MongoError' && err.code === 11000) {
+        throw new ConflictError('Такой e-mail уже зарегистрирован');
+      } else if (err.name === 'ValidationError') {
+        throw new BadRequestError('Переданы некорректные данные');
+      }
+      next(err);
     })
     .catch(next);
 };
