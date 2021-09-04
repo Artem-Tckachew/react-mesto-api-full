@@ -22,7 +22,7 @@ const randomString = crypto
 console.log(randomString);
 
 app.use(cors({
-  origin: true,
+  origin: 'https://artemtkachev.nomoredomains.monster/',
   methods: ['GET', 'PUT', 'POST', 'DELETE'],
   allowedHeaders: ['Authorization', 'Content-Type'],
   credentials: true,
