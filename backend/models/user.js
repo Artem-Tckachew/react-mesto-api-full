@@ -4,21 +4,18 @@ const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   name: {
-    required: false,
     type: String,
     minlength: 2,
     maxlength: 30,
     default: 'Жак-Ив Кусто',
   },
   about: {
-    required: false,
     type: String,
     minlength: 2,
     maxlength: 30,
     default: 'Исследователь',
   },
   avatar: {
-    required: false,
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {

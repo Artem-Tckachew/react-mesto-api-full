@@ -6,7 +6,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
-const { JWT_SECRET = 'dev-key' } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -132,32 +132,15 @@ const updateAvatar = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id },
-        JWT_SECRET,
-        { expiresIn: '7d' });
-
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-        sameSite: 'none',
-        secure: true,
-      }).status(200).send({ token });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret', { expiresIn: '7d' });
+      res.send({ token });
     })
     .catch(() => {
       throw new UnauthorizedError('Неверные почта или пароль');
     })
     .catch(next);
-};
-
-const logout = (req, res) => {
-  res.clearCookie('jwt', {
-    httpOnly: true,
-    sameSite: 'none',
-    secure: true,
-  }).status(200).end();
 };
 
 module.exports = {
@@ -168,5 +151,4 @@ module.exports = {
   updateAvatar,
   login,
   currentUser,
-  logout,
 };

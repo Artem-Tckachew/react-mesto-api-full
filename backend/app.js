@@ -1,11 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const crypto = require('crypto');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { Joi, celebrate } = require('celebrate');
+const { Joi, celebrate, errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { isURL } = require('validator');
 const { login, createUser, logout } = require('./controllers/users');
@@ -16,6 +16,14 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 const { PORT = 3000 } = process.env;
+
+const randomString = crypto
+  .randomBytes(16)
+  .toString('hex');
+console.log(randomString);
+
+app.use(cors());
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

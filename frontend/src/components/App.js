@@ -6,7 +6,7 @@ import ImagePopup from './ImagePopup'
 import EditProfilePopup from './EditProfilePopup'
 import EditAvatarPopup from './EditAvatarPopup'
 import AddPlacePopup from './AddPlacePopup'
-import {React, useState, useEffect} from 'react'
+import React from 'react'
 import api from '../utils/api'
 import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import { Route, useHistory, Switch, Redirect } from 'react-router-dom';
@@ -18,22 +18,44 @@ import * as auth from '../utils/auth';
 
 function App() {
 
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [currentUser, setCurrentUser] = useState({});
-  const [cards, setCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [cardForDelete, setCardForDelete] = useState(null);
-  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [tooltipStatus, setTooltipStatus] = useState();
-  const [isCardsLoading, setIsCardsLoading] = useState(false);
-  const [isCardsLoadError, setIsCardsLoadError] = useState();
-  const [email, setEmail] = useState('');
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
+  const [selectedCard, setSelectedCard] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState({});
+  const [cards, setCards] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [cardForDelete, setCardForDelete] = React.useState(null);
+  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [tooltipStatus, setTooltipStatus] = React.useState();
+  const [isCardsLoading, setIsCardsLoading] = React.useState(false);
+  const [isCardsLoadError, setIsCardsLoadError] = React.useState();
+  const [email, setEmail] = React.useState('');
 
   const history = useHistory();
+
+  const checkToken = React.useCallback(() => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    auth.checkToken(token).then(
+        (data) => {
+            setIsLoggedIn(true);
+            setEmail(data.email);
+            history.push('/');
+        })
+        .catch((err) => {
+                console.log(err);
+            }
+        );
+}, [history]);
+
+React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        checkToken();
+    }
+}, [checkToken]);
   
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -42,7 +64,7 @@ function App() {
   function handleCardLike(card) {
     const isLiked = card.likes.some(i => i === currentUser._id);
     if (isLiked) {
-      api.deleteLike(card._id).then((newCard) => {
+      api.deleteLike(localStorage.token, card._id).then((newCard) => {
         setCards((cards) => cards.map((el) =>
           el._id === card._id ? newCard : el
         ))
@@ -51,7 +73,7 @@ function App() {
           console.log(`Error: ${res.status}`)
         })
     } else {
-      api.postLike(card._id).then((newCard) => {
+      api.postLike(localStorage.token, card._id).then((newCard) => {
         setCards((cards) => cards.map((el) =>
           el._id === card._id ? newCard : el
         ))
@@ -64,7 +86,7 @@ function App() {
 
 function handleAddPlaceSubmit(card) {
   setIsLoading(true)
-  api.addCard(card)
+  api.addCard(card, localStorage.token)
   .then((newCard) => {
     setCards([newCard, ...cards]);
     closeAllPopups(); 
@@ -100,7 +122,7 @@ function handleCardDelete(evt) {
 
 function handleUpdateUser(item){
   setIsLoading(true);
-  api.setUserData(item)
+  api.setUserData(item, localStorage.token)
     .then(res => {
       setCurrentUser(res);
       closeAllPopups()
@@ -111,7 +133,7 @@ function handleUpdateUser(item){
 
 function handleUpdateAvatar(item){
   setIsLoading(true)
-  api.setUserAvatar(item)
+  api.setUserAvatar(item, localStorage.token)
   .then(res => {
     setCurrentUser(res);
     closeAllPopups()
@@ -120,9 +142,9 @@ function handleUpdateAvatar(item){
   .finally(() => setIsLoading(false));
 }
 
-useEffect(() => {
-  if (isLoggedIn) {
-    api.getUserData()
+React.useEffect(() => {
+  const token = localStorage.getItem('token');
+    api.getUserData(token)
     .then((userData) => {
       setCurrentUser(userData);
     })
@@ -130,16 +152,15 @@ useEffect(() => {
 
     setIsCardsLoading(true);
     setIsCardsLoadError();
-    api.getInitialCards()
+    api.getInitialCards(token)
     .then((cardData) => {
         setCards(cardData);
     })
     .catch(err => setIsCardsLoadError(err))
     .finally(() => setIsCardsLoading(false));
-  }
-}, [isLoggedIn]);
+  }, []);
 
-useEffect(() => {
+React.useEffect(() => {
 auth.getContent().then(res => {
   if (res) {
     setIsLoggedIn(true);
@@ -170,16 +191,14 @@ function onRegister({ email, password }){
     })
 } 
 
-function onLogin(data){
-  const { password, email } = data;
-  auth.login(email, password)
-    .then((data) => {
-      if (data.token) {
+function onLogin(email, password){
+  auth.login(email, password).then(
+      (data) => {
+      localStorage.setItem('token', data.token);
       setIsLoggedIn(true);
       setEmail(email);
       history.push('/');
       console.log('push');
-      }
     })
     .catch(() => {
       setTooltipStatus({
@@ -190,18 +209,15 @@ function onLogin(data){
 }
 
 function onSignOut(){
-  auth.logout()
-  .then(() => {
-  setIsLoggedIn(false);
+  localStorage.removeItem("token");
+        setLoggedIn(false);
   history.push('/signin');
-})
-.catch(err => console.log(err))
-}
+};
 
   return (
      <CurrentUserContext.Provider value={currentUser}>
   <div className="page">
-    <Header  email={email} onSignOut={onSignOut} />
+    <Header isLoggedIn={isLoggedIn} email={email} onSignOut={onSignOut} />
     <Switch>
             <ProtectedRoute isLoggedIn={isLoggedIn} path="/"exact>
     <Main onEditProfile={setIsEditProfilePopupOpen}  isCardsLoading={isCardsLoading} isCardsError={isCardsLoadError}
@@ -225,7 +241,7 @@ function onSignOut(){
               <Register onRegister={onRegister} />
             </Route>
             <Route path="/signin">
-              <Login onLogin={onLogin} />
+              <Login onLogin={onLogin} onChekToken={checkToken}/>
             </Route>
             <Route path="*">
               {isLoggedIn ? <Redirect to="/"/> : <Redirect to="/login"/>}
