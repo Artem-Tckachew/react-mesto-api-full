@@ -20,7 +20,7 @@ const getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(new NotFoundError('Нет пользователя с таким id'))
     .then((user) => {
-      res.status(200).send(user);
+      res.status(200).send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
