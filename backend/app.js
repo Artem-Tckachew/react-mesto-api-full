@@ -24,8 +24,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(requestLogger);
-app.use(cors());
-app.options('*', cors());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
