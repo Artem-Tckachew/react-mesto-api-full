@@ -24,7 +24,7 @@ const getUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        next(new BadRequestError('Переданы некорректные данные'));
       }
       next(err);
     });
@@ -32,15 +32,13 @@ const getUser = (req, res, next) => {
 
 const currentUser = (res, req, next) => {
   User.findById(req.user._id)
+    .orFail(new NotFoundError('Нет пользователя с таким id'))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        next(new BadRequestError('Переданы некорректные данные'));
       }
       next(err);
     })
@@ -89,45 +87,32 @@ const updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true, runValidators: true },
-  )
+    { new: true, runValidators: true })
+    .orFail(new NotFoundError('Нет пользователя с таким id'))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      } else if (err.name === 'CastError') {
-        throw new BadRequestError('Нет пользователя с таким id');
-      } else {
-        next(err);
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
       }
+      next(err);
     })
-    .catch(next);
 };
 
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .orFail(new NotFoundError('Нет пользователя с таким id'))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      } else if (err.name === 'CastError') {
-        throw new BadRequestError('Нет пользователя с таким id');
-      } else {
-        next(err);
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
       }
+      next(err);
     })
-    .catch(next);
 };
 
 const login = (req, res, next) => {
@@ -146,10 +131,9 @@ const login = (req, res, next) => {
         secure: true,
       }).status(200).send({ token });
     })
-    .catch(() => {
-      throw new UnauthorizedError('Неверные почта или пароль');
+    .catch((err) => {
+      next(new UnauthorizedError(err.message));
     })
-    .catch(next);
 };
 
 const logout = (req, res) => {
