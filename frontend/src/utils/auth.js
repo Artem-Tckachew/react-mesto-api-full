@@ -43,7 +43,7 @@ getContent() {
 }
 
 logout() {
-  return fetch(`${BASE_URL}/signout`, {
+  return fetch(`${this_address}/signout`, {
     method: 'DELETE',
     credentials: 'include',
     headers: {
