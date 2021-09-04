@@ -15,7 +15,9 @@ export const register = (email, password) => {
   .then((res) => {
     return res;
   })
-};(email, password, token) => {
+};
+
+export const login = (email, password, token) => {
   return fetch(`${BASE_URL}/signin`, {
       method: 'POST',
       headers: {
