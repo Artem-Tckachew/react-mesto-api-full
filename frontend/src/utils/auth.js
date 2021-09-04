@@ -1,45 +1,48 @@
 import {getResponse} from './utils';
+class Auth {
+  constructor({address, headers, token}) {
+    this._address = address;
+    this._headers = headers;
+    this._token = token;
+  }
 
-const BASE_URL = 'https://artemtkachev.backend.nomoredomains.monster';
-
-export const register = (email, password) => {
-  return fetch(`${BASE_URL}/signup`, {
+register(email, password) {
+  return fetch(`${this._address}/signup`, {
     method: 'POST',
-    credentials: 'include',
-    headers: {
-      "Content-Type": "application/json" 
-    },
-    body: JSON.stringify({email, password})
-  })
-  .then(getResponse)
-  .then((res) => {
-    return res;
-  })
-};
-export const login = (email, password) => {
-  return fetch(`${BASE_URL}/signin`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      "Content-Type": "application/json" 
-    },
-    body: JSON.stringify({email, password})
+    headers: this._headers,
+    credentials: "include",
+    body: JSON.stringify({
+      email,
+      password
+    }),
   })
   .then(getResponse)
 };
 
-export const getContent = () => {
-  return fetch(`${BASE_URL}/users/me`, {
+login(email, password) {
+  return fetch(`${this._address}/signin`, {
+    method: 'POST',
+    headers: this._headers,
+    credentials: "include",
+    body: JSON.stringify({
+      email: email,
+      password: password,
+    }),
+  })
+  .then(getResponse)
+};
+
+getContent() {
+  return fetch(`${this._address}/users/me`, {
     method: 'GET',
-    credentials: 'include',
     headers: {
-      'Accept': 'application/json',
-      "Content-Type": "application/json",
-    }
+      'Content-Type': 'application/json',
+    },
+    credentials: "include",
   }).then(getResponse)
 }
 
-export const logout = () => {
+logout() {
   return fetch(`${BASE_URL}/signout`, {
     method: 'DELETE',
     credentials: 'include',
@@ -48,3 +51,14 @@ export const logout = () => {
     }
   })
 }
+}
+
+const auth = new Auth({
+  address: 'https://artemtkachev.backend.nomoredomains.monster',
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+});
+
+export default auth;
