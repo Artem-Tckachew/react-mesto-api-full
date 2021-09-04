@@ -6,7 +6,7 @@ import ImagePopup from './ImagePopup'
 import EditProfilePopup from './EditProfilePopup'
 import EditAvatarPopup from './EditAvatarPopup'
 import AddPlacePopup from './AddPlacePopup'
-import React from 'react'
+import {React, useState, useEffect} from 'react'
 import api from '../utils/api'
 import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import { Route, useHistory, Switch, Redirect } from 'react-router-dom';
@@ -14,46 +14,113 @@ import Register from './Register';
 import Login from './Login';
 import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
-import auth from '../utils/auth';
+import * as auth from '../utils/auth';
 
 function App() {
 
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
-  const [selectedCard, setSelectedCard] = React.useState(null);
-  const [currentUser, setCurrentUser] = React.useState({});
-  const [cards, setCards] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [cardForDelete, setCardForDelete] = React.useState(null);
-  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = React.useState(false);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [tooltipStatus, setTooltipStatus] = React.useState();
-  const [isCardsLoading, setIsCardsLoading] = React.useState(false);
-  const [isCardsLoadError, setIsCardsLoadError] = React.useState();
-  const [email, setEmail] = React.useState('');
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [currentUser, setCurrentUser] = useState({});
+  const [cards, setCards] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cardForDelete, setCardForDelete] = useState(null);
+  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [tooltipStatus, setTooltipStatus] = useState();
+  const [isCardsLoading, setIsCardsLoading] = useState(false);
+  const [isCardsLoadError, setIsCardsLoadError] = useState();
+  const [email, setEmail] = useState('');
 
   const history = useHistory();
-
-const tokenCheck = React.useCallback(() => {
-  auth.getContent().then(res => {
-    if (res) {
-      setIsLoggedIn(true);
-      setEmail(res.email);
-      history.push('/');
-    }
-  })
-    .catch(res => {
-      console.log(`Error: ${res.status}`)
-    })
-  }
-  , [history])
   
-  React.useEffect(() => {
-    tokenCheck();
-  }, [tokenCheck]);
+  function handleCardClick(card) {
+    setSelectedCard(card);
+  }
 
-React.useEffect(() => {
+  function handleCardLike(card) {
+    const isLiked = card.likes.some(i => i === currentUser._id);
+    if (isLiked) {
+      api.deleteLike(card._id).then((newCard) => {
+        setCards((cards) => cards.map((el) =>
+          el._id === card._id ? newCard : el
+        ))
+      })
+        .catch(res => {
+          console.log(`Error: ${res.status}`)
+        })
+    } else {
+      api.postLike(card._id).then((newCard) => {
+        setCards((cards) => cards.map((el) =>
+          el._id === card._id ? newCard : el
+        ))
+      })
+        .catch(res => {
+          console.log(`Error: ${res.status}`)
+        })
+    }
+  }
+
+function handleAddPlaceSubmit(card) {
+  setIsLoading(true)
+  api.addCard(card)
+  .then((newCard) => {
+    setCards([newCard, ...cards]);
+    closeAllPopups(); 
+  })
+  .catch((error) => console.log(`Ошибка добавления карточки с сервера: ${error}`))
+  .finally(() =>  setIsLoading(false));
+} 
+
+function handleCardDelete(evt) {
+  evt.preventDefault();
+  api.deleteCard(cardForDelete._id)
+  .then(() => {
+      setCards(cards.filter((c) => (c._id !== cardForDelete._id)));
+      setIsDeleteCardPopupOpen(false);
+  })
+  .catch((error) => console.log(`Ошибка удаления карточки с сервера: ${error}`));;
+} 
+
+  function handleCardDeleteRequest(card) {
+    setCardForDelete(card);
+    setIsDeleteCardPopupOpen(true);
+  }
+
+  function closeAllPopups() {
+    setIsEditProfilePopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setSelectedCard(null);
+    setIsDeleteCardPopupOpen(false);
+    setTooltipStatus();
+    setCardForDelete(undefined);
+  }
+
+function handleUpdateUser(item){
+  setIsLoading(true);
+  api.setUserData(item)
+    .then(res => {
+      setCurrentUser(res);
+      closeAllPopups()
+    })
+    .catch((error) => console.log(`Ошибка загрузки данных пользователя с сервера: ${error}`))
+    .finally(() => setIsLoading(false));
+}
+
+function handleUpdateAvatar(item){
+  setIsLoading(true)
+  api.setUserAvatar(item)
+  .then(res => {
+    setCurrentUser(res);
+    closeAllPopups()
+  })
+  .catch((error) => console.log(`Ошибка загрузки данных пользователя с сервера: ${error}`))
+  .finally(() => setIsLoading(false));
+}
+
+useEffect(() => {
   if (isLoggedIn) {
     api.getUserData()
     .then((userData) => {
@@ -71,6 +138,20 @@ React.useEffect(() => {
     .finally(() => setIsCardsLoading(false));
   }
 }, [isLoggedIn]);
+
+useEffect(() => {
+auth.getContent().then(res => {
+  if (res) {
+    setIsLoggedIn(true);
+    setEmail(res.email);
+    history.push('/');
+  }
+})
+  .catch(res => {
+    console.log(`Error: ${res.status}`)
+  })
+}
+, [history])
 
 function onRegister({ email, password }){
   auth.register(email, password)
@@ -115,91 +196,6 @@ function onSignOut(){
   history.push('/signin');
 })
 .catch(err => console.log(err))
-}
-
-function handleCardClick(card) {
-  setSelectedCard(card);
-}
-
-function handleCardLike(card) {
-  const isLiked = card.likes.some(i => i === currentUser._id);
-  if (isLiked) {
-    api.deleteLike(card._id).then((newCard) => {
-      setCards((cards) => cards.map((el) =>
-        el._id === card._id ? newCard : el
-      ))
-    })
-      .catch(res => {
-        console.log(`Error: ${res.status}`)
-      })
-  } else {
-    api.postLike(card._id).then((newCard) => {
-      setCards((cards) => cards.map((el) =>
-        el._id === card._id ? newCard : el
-      ))
-    })
-      .catch(res => {
-        console.log(`Error: ${res.status}`)
-      })
-  }
-}
-
-function handleAddPlaceSubmit(card) {
-setIsLoading(true)
-api.addCard(card)
-.then((newCard) => {
-  setCards([newCard, ...cards]);
-  closeAllPopups(); 
-})
-.catch((error) => console.log(`Ошибка добавления карточки с сервера: ${error}`))
-.finally(() =>  setIsLoading(false));
-} 
-
-function handleCardDelete(evt) {
-evt.preventDefault();
-api.deleteCard(cardForDelete._id)
-.then(() => {
-    setCards(cards.filter((c) => (c._id !== cardForDelete._id)));
-    setIsDeleteCardPopupOpen(false);
-})
-.catch((error) => console.log(`Ошибка удаления карточки с сервера: ${error}`));;
-} 
-
-function handleCardDeleteRequest(card) {
-  setCardForDelete(card);
-  setIsDeleteCardPopupOpen(true);
-}
-
-function closeAllPopups() {
-  setIsEditProfilePopupOpen(false);
-  setIsAddPlacePopupOpen(false);
-  setIsEditAvatarPopupOpen(false);
-  setSelectedCard(null);
-  setIsDeleteCardPopupOpen(false);
-  setTooltipStatus();
-  setCardForDelete(undefined);
-}
-
-function handleUpdateUser(item){
-setIsLoading(true);
-api.setUserData(item)
-  .then(res => {
-    setCurrentUser(res);
-    closeAllPopups()
-  })
-  .catch((error) => console.log(`Ошибка загрузки данных пользователя с сервера: ${error}`))
-  .finally(() => setIsLoading(false));
-}
-
-function handleUpdateAvatar(item){
-setIsLoading(true)
-api.setUserAvatar(item)
-.then(res => {
-  setCurrentUser(res);
-  closeAllPopups()
-})
-.catch((error) => console.log(`Ошибка загрузки данных пользователя с сервера: ${error}`))
-.finally(() => setIsLoading(false));
 }
 
   return (

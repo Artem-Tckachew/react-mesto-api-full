@@ -1,14 +1,12 @@
+import {options} from './constants'
 import {getResponse} from './utils';
 class Api {
-  constructor({ address, headers }) {
+  constructor({ address }) {
     this._address = address;
-    this._headers = headers;
   }
 
   getInitialCards() {
     return fetch(`${this._address}/cards`, {
-      method: 'GET',
-      headers: this._headers,
       credentials: 'include',
     })
       .then(getResponse)
@@ -17,8 +15,10 @@ class Api {
   addCard(card) {
     return fetch(`${this._address}/cards`, {
       method: 'POST',
-      headers: this._headers,
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         name: card.name,
         link: card.link
@@ -30,7 +30,6 @@ class Api {
   deleteCard(cardId) {
     return fetch(`${this._address}/cards/${cardId}`, {
       method: 'DELETE',
-      headers: this._headers,
       credentials: 'include',
     })
     .then(getResponse)
@@ -38,8 +37,6 @@ class Api {
 
   getUserData() {
     return fetch(`${this._address}/users/me`, {
-      method: 'GET',
-      headers: this._headers,
       credentials: 'include',
     })
     .then(getResponse)
@@ -48,8 +45,10 @@ class Api {
   setUserData({name, about}) {
     return fetch(`${this._address}/users/me`, {
       method: 'PATCH',
-      headers: this._headers,
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         name,
         about
@@ -61,8 +60,10 @@ class Api {
   setUserAvatar({avatar}) {
     return fetch(`${this._address}/users/me/avatar`, {
       method: 'PATCH',
-      headers: this._headers,
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         avatar
       })
@@ -70,28 +71,31 @@ class Api {
     .then(getResponse)
   }
 
+  changeLike(cardId, like) {
+    return fetch(`${this._address}/cards/${cardId}/likes`, {
+      method: like ? 'PUT' : 'DELETE',
+      credentials: 'include',
+    })
+    .then(getResponse)
+  }
+
   postLike(cardId) {
     return fetch(`${this._address}/cards/${cardId}/likes`, {
-      headers: this._headers,
-      credentials: 'include',
+        method: 'PUT',
+        credentials: 'include',
       })
       .then(getResponse)
   }
 
   deleteLike(cardId) {
     return fetch(`${this._address}/cards/${cardId}/likes`, {
-      headers: this._headers,
-      credentials: 'include',
+        method: 'DELETE',
+        credentials: 'include',
       })
       .then(getResponse)
   }
 
 }
 
-const api = new Api({
-  address: 'https://artemtkachev.backend.nomoredomains.monster',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const api = new Api(options);
 export default api;
