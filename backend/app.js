@@ -22,10 +22,26 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cookieParser());
 app.use(requestLogger);
-app.use(cors({
-  origin: true,
-  credentials: true,
-}));
+const corsAllowed = [
+  'https://artemtkachev.nomoredomains.monster/',
+  'https://artemtkachev.backend.nomoredomains.monster/',
+  'http://localhost:3000',
+];
+
+app.use(
+  cors({
+    credentials: true,
+    origin(origin, callback) {
+      if (corsAllowed.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  }),
+);
+
+app.options('*', cors());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
