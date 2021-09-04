@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
+const { isURL } = require('validator');
 const {
   getCards,
   createCard,
@@ -13,10 +13,11 @@ router.get('/', getCards);
 router.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().custom((value, helpers) => {
-      if (validator.isUrl(value)) {
-        return value;
-      } return helpers.message('Переданна не валидная ссылка');
+    link: Joi.string().required().custom((value) => {
+      if (!isURL(value)) {
+        throw new Error('Ссылка некоректная');
+      }
+      return value;
     }),
   }),
 }), createCard);
