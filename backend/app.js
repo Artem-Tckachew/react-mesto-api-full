@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const crypto = require('crypto');
-const cors = require('cors');
+//const cors = require('cors');
 const { Joi, celebrate, errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { isURL } = require('validator');
@@ -21,8 +21,8 @@ const randomString = crypto
   .toString('hex');
 console.log(randomString);
 
-app.use(cors());
-app.options('*', cors());
+//app.use(cors());
+//app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
