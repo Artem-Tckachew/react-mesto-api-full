@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const crypto = require('crypto');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const { Joi, celebrate, errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { isURL } = require('validator');
@@ -28,13 +27,9 @@ app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-app.use(cookieParser());
 app.use(requestLogger);
-app.use(cors({
-  origin: true,
-  credentials: true,
-}));
-
+app.use(cors());
+app.options('*', cors());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
