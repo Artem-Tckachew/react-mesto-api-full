@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const crypto = require('crypto');
+const cors = require('cors');
 const { Joi, celebrate, errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const { isURL } = require('validator');
@@ -20,10 +21,21 @@ const randomString = crypto
   .toString('hex');
 console.log(randomString);
 
+app.use(cors({
+  origin: 'https://artemtkachev.nomoredomains.monster/',
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
+  allowedHeaders: ['Authorization', 'Content-Type'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+}));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(requestLogger);
+app.use(cors());
+app.options('*', cors());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
