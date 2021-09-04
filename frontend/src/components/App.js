@@ -210,7 +210,7 @@ function onLogin(email, password){
 
 function onSignOut(){
   localStorage.removeItem("token");
-        setLoggedIn(false);
+        setIsLoggedIn(false);
   history.push('/signin');
 };
 
