@@ -69,7 +69,6 @@ app.post('/signup', celebrate({
   }).unknown(true),
 }), createUser);
 app.delete('/signout', logout);
-app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
